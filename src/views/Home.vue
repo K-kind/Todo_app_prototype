@@ -1,18 +1,34 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <DailyTasks :date="today" />
+    <DailyTasks :date="tomorrow" />
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import DailyTasks from '@/components/DailyTasks.vue'
 
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+    DailyTasks
+  },
+  computed: {
+    today() {
+      return new Date
+    },
+    tomorrow() {
+      let today = new Date
+      today.setDate(today.getDate() + 1)
+      return today
+    }
   }
 }
 </script>
+
+<style scoped>
+.home {
+  display: flex;
+}
+</style>
