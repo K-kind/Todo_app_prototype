@@ -3,8 +3,33 @@
     <h2>{{ dateString }}のタスク</h2>
     <draggable tag="ul" group="ITEMS">
       <li v-for="task of dailyTasks(date)" :key="task.id">
-        <p>ID.{{ task.id }}: {{ task.content }}</p>
-        <span>想定時間: {{ task.expectedTime }}分</span>
+        <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
+          ID.{{ task.id }}: {{ task.content }}
+          <span v-if="task.expectedTime">({{ task.expectedTime }}分)</span>
+        </p>
+        <form v-else>
+          <div>
+            <input
+              v-model="OnUpdatedTaskContent"
+              ref="content_field"
+              @blur="formBlur"
+              type="text"
+              id="new-content"
+              placeholder="タスク内容"
+            />
+            <input
+              v-model="onUpdatedTaskExpectedTime"
+              @blur="formBlur"
+              type="number"
+              id="new-expected-time"
+              placeholder="予定(分)"
+            />
+          </div>
+          <div>
+            <input @click.prevent="addTask" type="submit" value="追加">
+            <a @click="toggleForm" href="Javascript:void(0)">x</a>
+          </div>
+        </form>
       </li>
     </draggable>
     <a @click="openForm" v-show="!formIsOpen" href="Javascript:void(0)">+タスクを追加</a>
@@ -37,7 +62,7 @@
 <script>
 import draggable from 'vuedraggable'
 import { mapGetters, mapActions } from 'vuex'
-import { ADD_NEW_TASK, SET_NEW_TASK_ID } from '@/store/mutation-types'
+import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT } from '@/store/mutation-types'
 
 export default {
   name: 'DailyTasks',
@@ -45,7 +70,8 @@ export default {
     return {
       formIsOpen: false,
       newTaskContent: '',
-      newTaskExpectedTime: ''
+      newTaskExpectedTime: '',
+      onUpdatedTaskId: ''
     }
   },
   props: {
@@ -65,7 +91,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID]),
+    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT]),
     toggleForm() {
       this.formIsOpen = !this.formIsOpen
     },
@@ -73,6 +99,11 @@ export default {
       this.formIsOpen = true
       let self = this
       setTimeout(() => { self.$refs.content_field.focus() }, 0)
+    },
+    formBlur() {
+      if (!this.newTaskContent && !this.newTaskExpectedTime) {
+        this.formIsOpen = false
+      }
     },
     addTask() {
       if (this.newTaskContent) {
@@ -93,10 +124,11 @@ export default {
         this.$refs.content_field.focus()
       }
     },
-    formBlur() {
-      if (!this.newTaskContent && !this.newTaskExpectedTime) {
-        this.formIsOpen = false
-      }
+    openUpdateForm(taskId) {
+      this.onUpdatedTaskId = taskId
+    },
+    updateTask() {
+      this[UPDATE_TASK_CONTENT]()
     }
   },
   mounted() {

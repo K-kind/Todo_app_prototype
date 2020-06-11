@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { ADD_NEW_TASK, SET_NEW_TASK_ID } from './mutation-types'
+import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT } from './mutation-types'
 
 Vue.use(Vuex)
 
@@ -85,6 +85,15 @@ export default new Vuex.Store({
     [SET_NEW_TASK_ID](state) {
       let latestId = Math.max.apply(null, state.tasks.map(item => item.id))
       state.newTaskId = latestId + 1
+    },
+    [UPDATE_TASK_CONTENT](state, payload) {
+      state.tasks.map(function(task) {
+        if (task.id === payload.id) {
+          task.content = payload.content
+          task.expectedTime = payload.expectedTime
+          return task
+        }
+      })
     }
   },
   actions: {
@@ -93,6 +102,9 @@ export default new Vuex.Store({
     },
     [SET_NEW_TASK_ID]({ commit }) {
       commit(SET_NEW_TASK_ID)
+    },
+    [UPDATE_TASK_CONTENT]({ commit }, payload) {
+      commit(UPDATE_TASK_CONTENT, payload)
     },
   },
   modules: {
