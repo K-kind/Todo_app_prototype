@@ -42,7 +42,8 @@ import {
   SET_NEW_TASK_ID,
   UPDATE_TASK_CONTENT,
   UPDATE_TASK_ORDER,
-  MOVE_TASK_TO_ANOTER
+  MOVE_TASK_TO_ANOTER,
+  SET_CURRENT_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -77,7 +78,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER]),
+    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER, SET_CURRENT_TASK]),
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -127,27 +128,20 @@ export default {
       let fromDateString = e.from.dataset.date
       let toDateString = e.to.dataset.date
       let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
-      if (fromDateString === toDateString) {
-        let payload = {
-          fromYear,
-          fromMonth,
-          fromDate,
-          oldIndex: e.oldIndex,
-          newIndex: e.newIndex,
-        }
+      let payload = {
+        fromYear,
+        fromMonth,
+        fromDate,
+        oldIndex: e.oldIndex,
+        newIndex: e.newIndex,
+      }
+      if (e.to.dataset.working) {
+        this[SET_CURRENT_TASK](payload)
+      } else if (fromDateString === toDateString) {
         this[UPDATE_TASK_ORDER](payload)
       } else {
         let [toYear, toMonth, toDate] = toDateString.split('-')
-        let payload = {
-          fromYear,
-          fromMonth,
-          fromDate,
-          toYear,
-          toMonth,
-          toDate,
-          oldIndex: e.oldIndex,
-          newIndex: e.newIndex,
-        }
+        payload = Object.assign(payload, { toYear, toMonth, toDate})
         this[MOVE_TASK_TO_ANOTER](payload)
       }
     }

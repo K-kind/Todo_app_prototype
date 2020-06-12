@@ -15,6 +15,7 @@ export default {
   //   dates = []
   // },
   components: {
+    WorkingTask,
     DailyTasks
   },
   computed: {

@@ -7,7 +7,9 @@ import {
   UPDATE_TASK_CONTENT,
   DELETE_TASK_BY_ID,
   UPDATE_TASK_ORDER,
-  MOVE_TASK_TO_ANOTER
+  MOVE_TASK_TO_ANOTER,
+  SET_CURRENT_TASK,
+  UNSET_CURRENT_TASK
 } from './mutation-types'
 
 Vue.use(Vuex)
@@ -72,7 +74,7 @@ export default new Vuex.Store({
     //   },
     ],
     newTaskId: 1,
-    currentTaskId: 0
+    currentTaskId: null
   },
   getters: {
     dailyTasks(state) {
@@ -80,19 +82,20 @@ export default new Vuex.Store({
         return state.tasks.filter(task =>
           task.startYear === date.getFullYear() &&
           task.startMonth === date.getMonth() &&
-          task.startDate === date.getDate()
+          task.startDate === date.getDate() &&
+          !task.onProgress
         ).sort((a, b) => {
-            if(a.order < b.order) return -1;
-            if(a.order > b.order) return 1;
-            return 0;
+          if (a.order < b.order) return -1;
+          if (a.order > b.order) return 1;
+          return 0;
         });
       }
     },
     newTaskId(state) {
       return state.newTaskId
     },
-    currentTaskId(state) {
-      return state.currentTaskId
+    currentTask(state) {
+      return state.tasks.find(task => task.id === state.currentTaskId)
     },
     // getTaskById(state) {
     //   return  taskId => {
@@ -123,8 +126,14 @@ export default new Vuex.Store({
       })
     },
     // 全部taskをfilterすると時間がかかるので要改善
-    [DELETE_TASK_BY_ID](state, payload) {
-      let deletedTask = state.tasks.find(task => task.id === payload)
+    [DELETE_TASK_BY_ID](state, taskId) {
+      let deletedTask = state.tasks.find(task => task.id === taskId)
+      state.tasks = state.tasks.filter(task => task.id !== taskId)
+
+      if (deletedTask.onProgress) {
+        state.currentTaskId = null
+      }
+
       state.tasks = state.tasks.map(task => {
         if (
           task.startDate === deletedTask.startDate &&
@@ -134,7 +143,6 @@ export default new Vuex.Store({
         ) { task.order-- }
         return task
       })
-      state.tasks = state.tasks.filter(task => task.id !== payload)
     },
     [UPDATE_TASK_ORDER](state, payload) {
       let oldIndex = payload.oldIndex
@@ -187,6 +195,50 @@ export default new Vuex.Store({
 
         return task
       })
+    },
+    [SET_CURRENT_TASK](state, { fromYear, fromMonth, fromDate, oldIndex }) {
+      let currentTask = state.tasks.find(task =>
+        task.startDate == fromDate &&
+        task.startMonth == fromMonth &&
+        task.startYear == fromYear &&
+        task.order === oldIndex
+      )
+      state.currentTaskId = currentTask.id
+      state.tasks = state.tasks.map(task => {
+        if (
+          task.startDate == fromDate &&
+          task.startMonth == fromMonth &&
+          task.startYear == fromYear &&
+          task.order > oldIndex
+        ) {
+          task.order--
+        } else if (task.id === currentTask.id) {
+          task.onProgress = true
+        }
+        return task
+      })
+    },
+    [UNSET_CURRENT_TASK](state, { toYear, toMonth, toDate, newIndex, taskId }) {
+      state.tasks = state.tasks.map(task => {
+        if (
+          task.startDate == toDate &&
+          task.startMonth == toMonth &&
+          task.startYear == toYear &&
+          task.order >= newIndex
+        ) { task.order++ }
+
+        if (task.id === taskId) {
+          task.onProgress = false
+          task.order = newIndex
+          task.startDate = Number.parseInt(toDate)
+          task.startMonth = Number.parseInt(toMonth)
+          task.startYear = Number.parseInt(toYear)
+          console.log(task)
+        }
+
+        return task
+      })
+      state.currentTaskId = null
     }
   },
   actions: {
@@ -207,6 +259,12 @@ export default new Vuex.Store({
     },
     [MOVE_TASK_TO_ANOTER]({ commit }, payload) {
       commit(MOVE_TASK_TO_ANOTER, payload)
+    },
+    [SET_CURRENT_TASK]({ commit }, payload) {
+      commit(SET_CURRENT_TASK, payload)
+    },
+    [UNSET_CURRENT_TASK]({ commit }, payload) {
+      commit(UNSET_CURRENT_TASK, payload)
     },
   },
   modules: {
