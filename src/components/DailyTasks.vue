@@ -162,11 +162,13 @@ export default {
 .task-board {
   background-color: azure;
   width: 320px;
-  margin: 0 8px;
-  padding: 0 12px 8px;
+  margin: 0 8px 15px;
+  padding: 10px 12px;
 }
 h2 {
   text-align: center;
+  margin: 0 0 6px;
+  font-size: 16px;
 }
 ul {
   list-style-type: none;
