@@ -1,10 +1,10 @@
 <template>
   <div class="task-board">
     <h2>{{ dateString }}のタスク</h2>
-    <draggable tag="ul" group="ITEMS">
+    <draggable tag="ul" group="ITEMS" @end="onDragEnd" :data-date="separatedDate">
       <li v-for="task of dailyTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          ID.{{ task.id }}: {{ task.content }}
+          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.startDate }}日)
           <span v-if="task.expectedTime">({{ task.expectedTime }}分)</span>
         </p>
         <TaskForm
@@ -37,7 +37,13 @@
 import draggable from 'vuedraggable'
 import { mapGetters, mapActions } from 'vuex'
 import TaskForm from '@/components/TaskForm.vue'
-import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT } from '@/store/mutation-types'
+import {
+  ADD_NEW_TASK,
+  SET_NEW_TASK_ID,
+  UPDATE_TASK_CONTENT,
+  UPDATE_TASK_ORDER,
+  MOVE_TASK_TO_ANOTER
+} from '@/store/mutation-types'
 
 export default {
   name: 'DailyTasks',
@@ -62,10 +68,16 @@ export default {
       let date =  this.date.getDate()
       let day = weekDay[this.date.getDay()]
       return `${month}/${date}(${day})`
+    },
+    separatedDate() {
+      let year = this.date.getFullYear()
+      let month = this.date.getMonth()
+      let date = this.date.getDate()
+      return `${year}-${month}-${date}`
     }
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT]),
+    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER]),
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -82,6 +94,15 @@ export default {
       setTimeout(() => self.$refs.updateForm[0].focusForm())
     },
     addTask(e) {
+      let tasks = this.dailyTasks(this.date)
+      let newOrder
+      if (tasks.length === 0) {
+        newOrder = 0
+      } else {
+        newOrder = 1 + Math.max.apply(null,
+          tasks.map(task => task.order)
+        )
+      }
       let newTask = {
         id: this.newTaskId,
         content: e.content,
@@ -90,7 +111,8 @@ export default {
         elapsedTime: 0,
         startYear: this.date.getFullYear(),
         startMonth: this.date.getMonth(),
-        startDate: this.date.getDate()
+        startDate: this.date.getDate(),
+        order: newOrder
       }
       this[ADD_NEW_TASK](newTask)
       this[SET_NEW_TASK_ID]()
@@ -100,6 +122,34 @@ export default {
       let task = Object.assign(e, {id: task_id})
       this[UPDATE_TASK_CONTENT](task)
       this.closeForm()
+    },
+    onDragEnd(e) {
+      let fromDateString = e.from.dataset.date
+      let toDateString = e.to.dataset.date
+      let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
+      if (fromDateString === toDateString) {
+        let payload = {
+          fromYear,
+          fromMonth,
+          fromDate,
+          oldIndex: e.oldIndex,
+          newIndex: e.newIndex,
+        }
+        this[UPDATE_TASK_ORDER](payload)
+      } else {
+        let [toYear, toMonth, toDate] = toDateString.split('-')
+        let payload = {
+          fromYear,
+          fromMonth,
+          fromDate,
+          toYear,
+          toMonth,
+          toDate,
+          oldIndex: e.oldIndex,
+          newIndex: e.newIndex,
+        }
+        this[MOVE_TASK_TO_ANOTER](payload)
+      }
     }
   },
   mounted() {

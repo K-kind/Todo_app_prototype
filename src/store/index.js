@@ -1,65 +1,77 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID } from './mutation-types'
+import {
+  ADD_NEW_TASK,
+  SET_NEW_TASK_ID,
+  UPDATE_TASK_CONTENT,
+  DELETE_TASK_BY_ID,
+  UPDATE_TASK_ORDER,
+  MOVE_TASK_TO_ANOTER
+} from './mutation-types'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     tasks: [
-      // {
-      //   id: 0,
-      //   content: 'Vueを学ぶ',
-      //   expectedTime: 30,
-      //   isCompleted: false,
-      //   elapsedTime: 0,
-      //   startYear: 2020,
-      //   startMonth: 5,
-      //   startDate: 12
-      // },
-      // {
-      //   id: 1,
-      //   content: 'Terraformを学ぶ',
-      //   expectedTime: 20,
-      //   isCompleted: false,
-      //   elapsedTime: 0,
-      //   startYear: 2020,
-      //   startMonth: 5,
-      //   startDate: 12
-      // },
-      // {
-      //   id: 2,
-      //   content: 'Design patternを学ぶ',
-      //   expectedTime: 10,
-      //   isCompleted: false,
-      //   elapsedTime: 0,
-      //   startYear: 2020,
-      //   startMonth: 5,
-      //   startDate: 12
-      // },
-      // {
-      //   id: 3,
-      //   content: 'GitHubを学ぶ',
-      //   expectedTime: 10,
-      //   isCompleted: false,
-      //   elapsedTime: 0,
-      //   startYear: 2020,
-      //   startMonth: 5,
-      //   startDate: 13
-      // },
-      // {
-      //   id: 4,
-      //   content: 'Linuxを学ぶ',
-      //   expectedTime: 10,
-      //   isCompleted: false,
-      //   elapsedTime: 0,
-      //   startYear: 2020,
-      //   startMonth: 5,
-      //   startDate: 13
-      // },
+    //   {
+    //     id: 1,
+    //     content: 'Vueを学ぶ',
+    //     expectedTime: 30,
+    //     isCompleted: false,
+    //     elapsedTime: 0,
+    //     startYear: 2020,
+    //     startMonth: 5,
+    //     startDate: 12,
+    //     order: 1
+    //   },
+    //   {
+    //     id: 2,
+    //     content: 'Terraformを学ぶ',
+    //     expectedTime: 20,
+    //     isCompleted: false,
+    //     elapsedTime: 0,
+    //     startYear: 2020,
+    //     startMonth: 5,
+    //     startDate: 12,
+    //     order: 2
+    //   },
+    //   {
+    //     id: 3,
+    //     content: 'Design patternを学ぶ',
+    //     expectedTime: 10,
+    //     isCompleted: false,
+    //     elapsedTime: 0,
+    //     startYear: 2020,
+    //     startMonth: 5,
+    //     startDate: 12,
+    //     order: 3
+    //   },
+    //   {
+    //     id: 4,
+    //     content: 'GitHubを学ぶ',
+    //     expectedTime: 10,
+    //     isCompleted: false,
+    //     elapsedTime: 0,
+    //     startYear: 2020,
+    //     startMonth: 5,
+    //     startDate: 13,
+    //     order: 4
+    //   },
+    //   {
+    //     id: 5,
+    //     content: 'Linuxを学ぶ',
+    //     expectedTime: 10,
+    //     isCompleted: false,
+    //     elapsedTime: 0,
+    //     startYear: 2020,
+    //     startMonth: 5,
+    //     startDate: 13,
+    //     order: 5
+    //   },
     ],
-    newTaskId: '',
+    newTaskId: 1,
     currentTaskId: 0
   },
   getters: {
@@ -69,7 +81,11 @@ export default new Vuex.Store({
           task.startYear === date.getFullYear() &&
           task.startMonth === date.getMonth() &&
           task.startDate === date.getDate()
-        )
+        ).sort((a, b) => {
+            if(a.order < b.order) return -1;
+            if(a.order > b.order) return 1;
+            return 0;
+        });
       }
     },
     newTaskId(state) {
@@ -89,7 +105,12 @@ export default new Vuex.Store({
       state.tasks.push(payload)
     },
     [SET_NEW_TASK_ID](state) {
-      let latestId = Math.max.apply(null, state.tasks.map(item => item.id))
+      let latestId
+      if (state.tasks.length === 0) {
+        latestId = 0
+      } else {
+        latestId = Math.max.apply(null, state.tasks.map(item => item.id))
+      }
       state.newTaskId = latestId + 1
     },
     [UPDATE_TASK_CONTENT](state, payload) {
@@ -103,7 +124,69 @@ export default new Vuex.Store({
     },
     // 全部taskをfilterすると時間がかかるので要改善
     [DELETE_TASK_BY_ID](state, payload) {
+      let deletedTask = state.tasks.find(task => task.id === payload)
+      state.tasks = state.tasks.map(task => {
+        if (
+          task.startDate === deletedTask.startDate &&
+          task.startMonth === deletedTask.startMonth &&
+          task.startYear === deletedTask.startYear &&
+          task.order > deletedTask.order
+        ) { task.order-- }
+        return task
+      })
       state.tasks = state.tasks.filter(task => task.id !== payload)
+    },
+    [UPDATE_TASK_ORDER](state, payload) {
+      let oldIndex = payload.oldIndex
+      let newIndex = payload.newIndex
+      if (oldIndex === newIndex) { return false }
+
+      state.tasks = state.tasks.map(task => {
+        if (
+          task.startDate != payload.fromDate ||
+          task.startMonth != payload.fromMonth ||
+          task.startYear != payload.fromYear
+        ) { return task }
+
+        if (oldIndex < newIndex && task.order > oldIndex && task.order <= newIndex) { // 下げた時
+          task.order--
+        } else if (oldIndex > newIndex && task.order >= newIndex && task.order < oldIndex) { // 上げた時
+          task.order++
+        } else if (task.order === oldIndex) { // 移動主
+          task.order = newIndex
+        }
+        return task
+      })
+    },
+    [MOVE_TASK_TO_ANOTER](state, payload) {
+      let oldIndex = payload.oldIndex
+      let newIndex = payload.newIndex
+
+      state.tasks = state.tasks.map(task => {
+        if (
+          task.startDate == payload.fromDate &&
+          task.startMonth == payload.fromMonth &&
+          task.startYear == payload.fromYear
+        ) {
+          if (task.order > oldIndex) {
+            task.order--
+          } else if (task.order === oldIndex) {
+            task.order = newIndex
+            task.startDate = Number.parseInt(payload.toDate)
+            task.startMonth = Number.parseInt(payload.toMonth)
+            task.startYear = Number.parseInt(payload.toYear)
+          }
+        } else if (
+          task.startDate == payload.toDate &&
+          task.startMonth == payload.toMonth &&
+          task.startYear == payload.toYear &&
+          task.order >= newIndex
+        ) {
+          task.order++
+        }
+
+        return task
+      })
     }
   },
   actions: {
@@ -118,6 +201,12 @@ export default new Vuex.Store({
     },
     [DELETE_TASK_BY_ID]({ commit }, payload) {
       commit(DELETE_TASK_BY_ID, payload)
+    },
+    [UPDATE_TASK_ORDER]({ commit }, payload) {
+      commit(UPDATE_TASK_ORDER, payload)
+    },
+    [MOVE_TASK_TO_ANOTER]({ commit }, payload) {
+      commit(MOVE_TASK_TO_ANOTER, payload)
     },
   },
   modules: {

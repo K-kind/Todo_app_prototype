@@ -102,7 +102,6 @@ export default {
     },
     deleteTask() {
       this[DELETE_TASK_BY_ID](this.taskId)
-      console.log(this.taskId)
       this.closeForm()
     }
   }
