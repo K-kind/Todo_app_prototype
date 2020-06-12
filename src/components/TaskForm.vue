@@ -27,6 +27,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import { DELETE_TASK_BY_ID } from '@/store/mutation-types'
 
 export default {
@@ -54,6 +55,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions([DELETE_TASK_BY_ID]),
     formBlur() {
       let self = this
       setTimeout(() => {
@@ -70,6 +72,8 @@ export default {
       })
     },
     closeForm() {
+      this.taskContentData = ''
+      this.taskExpectedTimeData = ''
       this.$emit('close-form')
     },
     focusForm() {
@@ -97,8 +101,9 @@ export default {
       }
     },
     deleteTask() {
-      this.$store.dispatch(DELETE_TASK_BY_ID, this.taskId)
+      this[DELETE_TASK_BY_ID](this.taskId)
       console.log(this.taskId)
+      this.closeForm()
     }
   }
 }

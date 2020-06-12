@@ -12,7 +12,7 @@
           :formIsOpen="true"
           :taskId="task.id"
           :taskContent="task.content"
-          :taskExpectedTime="task.expectedTime"
+          :taskExpectedTime="`${task.expectedTime}`"
           :isNewTask="false"
           ref="updateForm"
           @close-form="closeForm"
@@ -24,7 +24,7 @@
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
-      :taskExpectedTime="null"
+      taskExpectedTime=""
       :isNewTask="true"
       ref="newForm"
       @close-form="closeForm"

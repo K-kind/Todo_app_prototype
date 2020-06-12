@@ -101,9 +101,9 @@ export default new Vuex.Store({
         }
       })
     },
-    // 全部のbookをやっていたら時間がかかるので要改善
+    // 全部taskをfilterすると時間がかかるので要改善
     [DELETE_TASK_BY_ID](state, payload) {
-      state.tasks == state.tasks.filter(task => task.id !== payload)
+      state.tasks = state.tasks.filter(task => task.id !== payload)
     }
   },
   actions: {
