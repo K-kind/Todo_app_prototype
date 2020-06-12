@@ -7,70 +7,43 @@
           ID.{{ task.id }}: {{ task.content }}
           <span v-if="task.expectedTime">({{ task.expectedTime }}分)</span>
         </p>
-        <form v-else>
-          <div>
-            <input
-              v-model="OnUpdatedTaskContent"
-              ref="content_field"
-              @blur="formBlur"
-              type="text"
-              id="new-content"
-              placeholder="タスク内容"
-            />
-            <input
-              v-model="onUpdatedTaskExpectedTime"
-              @blur="formBlur"
-              type="number"
-              id="new-expected-time"
-              placeholder="予定(分)"
-            />
-          </div>
-          <div>
-            <input @click.prevent="addTask" type="submit" value="追加">
-            <a @click="toggleForm" href="Javascript:void(0)">x</a>
-          </div>
-        </form>
+        <TaskForm
+          v-else
+          :formIsOpen="true"
+          :taskId="task.id"
+          :taskContent="task.content"
+          :taskExpectedTime="task.expectedTime"
+          :isNewTask="false"
+          ref="updateForm"
+          @close-form="closeForm"
+          @update-task="updateTask($event, task.id)"
+        ></TaskForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!formIsOpen" href="Javascript:void(0)">+タスクを追加</a>
-    <form v-show="formIsOpen">
-      <div>
-        <input
-          v-model="newTaskContent"
-          ref="content_field"
-          @blur="formBlur"
-          type="text"
-          id="new-content"
-          placeholder="タスク内容"
-        />
-        <input
-          v-model="newTaskExpectedTime"
-          @blur="formBlur"
-          type="number"
-          id="new-expected-time"
-          placeholder="予定(分)"
-        />
-      </div>
-      <div>
-        <input @click.prevent="addTask" type="submit" value="追加">
-        <a @click="toggleForm" href="Javascript:void(0)">x</a>
-      </div>
-    </form>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+タスクを追加</a>
+    <TaskForm
+      :formIsOpen="newFormIsOpen"
+      taskContent=""
+      :taskExpectedTime="null"
+      :isNewTask="true"
+      ref="newForm"
+      @close-form="closeForm"
+      @add-task="addTask"
+    ></TaskForm>
   </div>
 </template>
 
 <script>
 import draggable from 'vuedraggable'
 import { mapGetters, mapActions } from 'vuex'
+import TaskForm from '@/components/TaskForm.vue'
 import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT } from '@/store/mutation-types'
 
 export default {
   name: 'DailyTasks',
   data() {
     return {
-      formIsOpen: false,
-      newTaskContent: '',
-      newTaskExpectedTime: '',
+      newFormIsOpen: false,
       onUpdatedTaskId: ''
     }
   },
@@ -78,12 +51,13 @@ export default {
     date: Date
   },
   components: {
-    draggable
+    draggable,
+    TaskForm
   },
   computed: {
     ...mapGetters(['dailyTasks', 'newTaskId']),
     dateString() {
-      let weekDay = ["日", "月", "火", "水", "木", "金", "土"]
+      let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
       let date =  this.date.getDate()
       let day = weekDay[this.date.getDay()]
@@ -92,43 +66,40 @@ export default {
   },
   methods: {
     ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT]),
-    toggleForm() {
-      this.formIsOpen = !this.formIsOpen
+    closeForm() {
+      this.newFormIsOpen = false
+      let self = this
+      setTimeout(() => self.onUpdatedTaskId = '')
     },
     openForm() {
-      this.formIsOpen = true
+      this.newFormIsOpen = true
       let self = this
-      setTimeout(() => { self.$refs.content_field.focus() }, 0)
-    },
-    formBlur() {
-      if (!this.newTaskContent && !this.newTaskExpectedTime) {
-        this.formIsOpen = false
-      }
-    },
-    addTask() {
-      if (this.newTaskContent) {
-        let newTask = {
-          id: this.newTaskId,
-          content: this.newTaskContent,
-          expectedTime: this.newTaskExpectedTime,
-          isCompleted: false,
-          elapsedTime: 0,
-          startYear: this.date.getFullYear(),
-          startMonth: this.date.getMonth(),
-          startDate: this.date.getDate()
-        }
-        this[ADD_NEW_TASK](newTask)
-        this[SET_NEW_TASK_ID]()
-        this.newTaskContent = ''
-        this.newTaskExpectedTime = ''
-        this.$refs.content_field.focus()
-      }
+      setTimeout(() => self.$refs.newForm.focusForm())
     },
     openUpdateForm(taskId) {
       this.onUpdatedTaskId = taskId
+      let self = this
+      setTimeout(() => self.$refs.updateForm[0].focusForm())
     },
-    updateTask() {
-      this[UPDATE_TASK_CONTENT]()
+    addTask(e) {
+      let newTask = {
+        id: this.newTaskId,
+        content: e.content,
+        expectedTime: e.expectedTime,
+        isCompleted: false,
+        elapsedTime: 0,
+        startYear: this.date.getFullYear(),
+        startMonth: this.date.getMonth(),
+        startDate: this.date.getDate()
+      }
+      this[ADD_NEW_TASK](newTask)
+      this[SET_NEW_TASK_ID]()
+      this.$refs.newForm.focusForm()
+    },
+    updateTask(e, task_id) {
+      let task = Object.assign(e, {id: task_id})
+      this[UPDATE_TASK_CONTENT](task)
+      this.closeForm()
     }
   },
   mounted() {
@@ -153,10 +124,10 @@ ul {
 }
 li {
   cursor: pointer;
-  padding: 10px;
   border: solid #ddd 1px;
 }
 p {
-  margin: 5px 0;
+  margin: 0;
+  padding: 10px;
 }
 </style>

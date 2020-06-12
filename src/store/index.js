@@ -1,62 +1,63 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT } from './mutation-types'
+import createPersistedState from 'vuex-persistedstate'
+import { ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID } from './mutation-types'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     tasks: [
-      {
-        id: 0,
-        content: 'Vueを学ぶ',
-        expectedTime: 30,
-        isCompleted: false,
-        elapsedTime: 0,
-        startYear: 2020,
-        startMonth: 5,
-        startDate: 12
-      },
-      {
-        id: 1,
-        content: 'Terraformを学ぶ',
-        expectedTime: 20,
-        isCompleted: false,
-        elapsedTime: 0,
-        startYear: 2020,
-        startMonth: 5,
-        startDate: 12
-      },
-      {
-        id: 2,
-        content: 'Design patternを学ぶ',
-        expectedTime: 10,
-        isCompleted: false,
-        elapsedTime: 0,
-        startYear: 2020,
-        startMonth: 5,
-        startDate: 12
-      },
-      {
-        id: 3,
-        content: 'GitHubを学ぶ',
-        expectedTime: 10,
-        isCompleted: false,
-        elapsedTime: 0,
-        startYear: 2020,
-        startMonth: 5,
-        startDate: 13
-      },
-      {
-        id: 4,
-        content: 'Linuxを学ぶ',
-        expectedTime: 10,
-        isCompleted: false,
-        elapsedTime: 0,
-        startYear: 2020,
-        startMonth: 5,
-        startDate: 13
-      },
+      // {
+      //   id: 0,
+      //   content: 'Vueを学ぶ',
+      //   expectedTime: 30,
+      //   isCompleted: false,
+      //   elapsedTime: 0,
+      //   startYear: 2020,
+      //   startMonth: 5,
+      //   startDate: 12
+      // },
+      // {
+      //   id: 1,
+      //   content: 'Terraformを学ぶ',
+      //   expectedTime: 20,
+      //   isCompleted: false,
+      //   elapsedTime: 0,
+      //   startYear: 2020,
+      //   startMonth: 5,
+      //   startDate: 12
+      // },
+      // {
+      //   id: 2,
+      //   content: 'Design patternを学ぶ',
+      //   expectedTime: 10,
+      //   isCompleted: false,
+      //   elapsedTime: 0,
+      //   startYear: 2020,
+      //   startMonth: 5,
+      //   startDate: 12
+      // },
+      // {
+      //   id: 3,
+      //   content: 'GitHubを学ぶ',
+      //   expectedTime: 10,
+      //   isCompleted: false,
+      //   elapsedTime: 0,
+      //   startYear: 2020,
+      //   startMonth: 5,
+      //   startDate: 13
+      // },
+      // {
+      //   id: 4,
+      //   content: 'Linuxを学ぶ',
+      //   expectedTime: 10,
+      //   isCompleted: false,
+      //   elapsedTime: 0,
+      //   startYear: 2020,
+      //   startMonth: 5,
+      //   startDate: 13
+      // },
     ],
     newTaskId: '',
     currentTaskId: 0
@@ -77,6 +78,11 @@ export default new Vuex.Store({
     currentTaskId(state) {
       return state.currentTaskId
     },
+    // getTaskById(state) {
+    //   return  taskId => {
+    //     state.tasks.find(task => task.id === taskId)
+    //   }
+    // }
   },
   mutations: {
     [ADD_NEW_TASK](state, payload) {
@@ -94,6 +100,10 @@ export default new Vuex.Store({
           return task
         }
       })
+    },
+    // 全部のbookをやっていたら時間がかかるので要改善
+    [DELETE_TASK_BY_ID](state, payload) {
+      state.tasks == state.tasks.filter(task => task.id !== payload)
     }
   },
   actions: {
@@ -106,7 +116,14 @@ export default new Vuex.Store({
     [UPDATE_TASK_CONTENT]({ commit }, payload) {
       commit(UPDATE_TASK_CONTENT, payload)
     },
+    [DELETE_TASK_BY_ID]({ commit }, payload) {
+      commit(DELETE_TASK_BY_ID, payload)
+    },
   },
   modules: {
-  }
+  },
+  plugins: [createPersistedState({
+    key: 'todo',
+    storage: localStorage
+  })]
 })
