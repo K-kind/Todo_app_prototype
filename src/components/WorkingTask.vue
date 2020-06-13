@@ -1,7 +1,11 @@
 <template>
   <div>
-    現在のタスク
     <draggable tag="ul" group="ITEMS" @end="onDragEnd" class="working-task" :data-working="true">
+      <h2>現在のタスク</h2>
+      <div v-if="currentTask">
+        <button @click.prevent="start">スタート</button>
+        <span v-if="elapsedTime">経過時間: {{ elapsedTime }}</span>
+      </div>
       <li v-if="currentTask">
         <p v-if="!formIsOpen" @click="openForm()">
           {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.startDate }}日)
@@ -29,14 +33,17 @@ import { mapGetters, mapActions } from 'vuex'
 import TaskForm from '@/components/TaskForm.vue'
 import {
   UPDATE_TASK_CONTENT,
-  UNSET_CURRENT_TASK
+  UNSET_CURRENT_TASK,
+  START_TASK
 } from '@/store/mutation-types'
 
 export default {
   name: 'WorkingTask',
   data() {
     return {
-      formIsOpen: false
+      formIsOpen: false,
+      timerId: null,
+      elapsedTime: null
     }
   },
   components: {
@@ -47,7 +54,7 @@ export default {
     ...mapGetters(['currentTask']),
   },
   methods: {
-    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK]),
+    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK]),
     closeForm() {
       this.formIsOpen = false
     },
@@ -72,6 +79,27 @@ export default {
         taskId: this.currentTask.id
       }
       this[UNSET_CURRENT_TASK](payload)
+    },
+    computeElapsedTime() {
+      let started = this.currentTask.startedTime
+      let now = Date.now()
+      this.elapsedTime = Math.floor((now - started) / (1000))
+    },
+    setTimer() {
+      let self = this
+      this.timerId = setInterval(() => {
+        self.computeElapsedTime()
+      }, 1000)
+    },
+    start() {
+      this[START_TASK]()
+      this.setTimer()
+    }
+  },
+  mounted() {
+    if (this.currentTask && this.currentTask.startedTime) {
+      this.computeElapsedTime()
+      this.setTimer()
     }
   }
 }
@@ -81,5 +109,23 @@ export default {
 .working-task {
   min-height: 24px;
   background-color: bisque;
+  padding: 10px 12px;
+}
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+li {
+  cursor: pointer;
+  border: solid #ddd 1px;
+}
+p {
+  margin: 0;
+  padding: 10px;
+}
+h2 {
+  font-size: 16px;
+  margin: 0 0 6px;
+  text-align: center;
 }
 </style>

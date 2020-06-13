@@ -9,7 +9,8 @@ import {
   UPDATE_TASK_ORDER,
   MOVE_TASK_TO_ANOTER,
   SET_CURRENT_TASK,
-  UNSET_CURRENT_TASK
+  UNSET_CURRENT_TASK,
+  START_TASK
 } from './mutation-types'
 
 Vue.use(Vuex)
@@ -83,7 +84,7 @@ export default new Vuex.Store({
           task.startYear === date.getFullYear() &&
           task.startMonth === date.getMonth() &&
           task.startDate === date.getDate() &&
-          !task.onProgress
+          !task.isCurrent
         ).sort((a, b) => {
           if (a.order < b.order) return -1;
           if (a.order > b.order) return 1;
@@ -130,7 +131,7 @@ export default new Vuex.Store({
       let deletedTask = state.tasks.find(task => task.id === taskId)
       state.tasks = state.tasks.filter(task => task.id !== taskId)
 
-      if (deletedTask.onProgress) {
+      if (deletedTask.isCurrent) {
         state.currentTaskId = null
       }
 
@@ -213,7 +214,7 @@ export default new Vuex.Store({
         ) {
           task.order--
         } else if (task.id === currentTask.id) {
-          task.onProgress = true
+          task.isCurrent = true
         }
         return task
       })
@@ -228,7 +229,7 @@ export default new Vuex.Store({
         ) { task.order++ }
 
         if (task.id === taskId) {
-          task.onProgress = false
+          task.isCurrent = false
           task.order = newIndex
           task.startDate = Number.parseInt(toDate)
           task.startMonth = Number.parseInt(toMonth)
@@ -239,6 +240,11 @@ export default new Vuex.Store({
         return task
       })
       state.currentTaskId = null
+    },
+    [START_TASK](state) {
+      let currentTask = state.tasks.find(task => task.id === state.currentTaskId)
+      currentTask.startedTime = Date.now()
+      currentTask.onProgress = true
     }
   },
   actions: {
@@ -265,6 +271,9 @@ export default new Vuex.Store({
     },
     [UNSET_CURRENT_TASK]({ commit }, payload) {
       commit(UNSET_CURRENT_TASK, payload)
+    },
+    [START_TASK]({ commit }, payload) {
+      commit(START_TASK, payload)
     },
   },
   modules: {

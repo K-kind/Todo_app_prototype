@@ -8,6 +8,7 @@
         type="text"
         id="new-content"
         placeholder="タスク内容"
+        autocomplete="off"
       />
       <input
         v-model="taskExpectedTimeData"
