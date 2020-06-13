@@ -9,9 +9,6 @@ import DailyTasks from '@/components/DailyTasks.vue'
 
 export default {
   name: 'DailyColumn',
-  // data() {
-  //   dates = []
-  // },
   components: {
     DailyTasks
   },

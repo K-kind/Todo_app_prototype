@@ -1,12 +1,12 @@
 <template>
-  <div>
-    <draggable tag="ul" group="ITEMS" @end="onDragEnd" class="working-task" :data-working="true">
-      <h2>現在のタスク</h2>
-      <div v-if="currentTask">
-        <button @click.prevent="start" v-if="!timerId">スタート</button>
-        <button @click.prevent="stop" v-else>一時停止</button>
-        <span>経過時間: {{ elapsedTime }}</span>
-      </div>
+  <div class="working-task">
+    <h2>現在のタスク</h2>
+    <div v-if="currentTask">
+      <button @click.prevent="start" v-if="!timerId">スタート</button>
+      <button @click.prevent="stop" v-else>一時停止</button>
+      <span>経過時間: {{ elapsedTime }}</span>
+    </div>
+    <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
       <li v-if="currentTask">
         <p v-if="!formIsOpen" @click="openForm()">
           {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.startDate }}日)
@@ -45,7 +45,8 @@ export default {
     return {
       formIsOpen: false,
       timerId: null,
-      elapsedTime: null
+      elapsedTime: null,
+      draggableGroup: 'TASKS'
     }
   },
   components: {
@@ -71,7 +72,13 @@ export default {
       this.closeForm()
     },
     onDragEnd(e) {
-      if (e.to.dataset.working) return false
+      if (e.to.dataset.working) {
+        this.disableDrag(true)
+        return false
+      }
+      if (this.currentTask.onProgress) {
+        this.stop()
+      }
       let [toYear, toMonth, toDate] = e.to.dataset.date.split('-')
       let payload = {
         toYear,
@@ -81,6 +88,7 @@ export default {
         taskId: this.currentTask.id
       }
       this[UNSET_CURRENT_TASK](payload)
+      this.disableDrag(false)
     },
     computeElapsedTime() {
       let elapsed = this.currentTask.elapsedTime
@@ -112,11 +120,28 @@ export default {
       this[STOP_TASK]()
       clearInterval(this.timerId)
       this.timerId = null
+    },
+    onAdd() {
+      this.disableDrag(true)
+      let self = this
+      setTimeout(() => { // onEndの後にするため
+        self.computeElapsedTime()
+      })
+    },
+    onClone() {
+      this.disableDrag(false)
+    },
+    disableDrag(boolean) {
+      let groupName = (boolean ? '' : 'TASKS')
+      this.draggableGroup = groupName
     }
   },
   mounted() {
-    if (this.currentTask && this.currentTask.startedTime) {
-      this.computeElapsedTime()
+    if (!this.currentTask) return false;
+
+    this.disableDrag(true)
+    this.computeElapsedTime()
+    if (this.currentTask.startedTime) {
       this.setTimer()
     }
   }
@@ -128,6 +153,7 @@ export default {
   min-height: 24px;
   background-color: bisque;
   padding: 10px 12px;
+  margin: 0 8px 15px;
 }
 ul {
   list-style-type: none;

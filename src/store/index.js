@@ -93,6 +93,19 @@ export default new Vuex.Store({
         });
       }
     },
+    completedTasks(state) {
+      return date => {
+        return state.tasks.filter(task =>
+          task.completedYear === date.getFullYear() &&
+          task.completedMonth === date.getMonth() &&
+          task.completedDate === date.getDate()
+        ).sort((a, b) => {
+          if (a.order < b.order) return -1;
+          if (a.order > b.order) return 1;
+          return 0;
+        });
+      }
+    },
     newTaskId(state) {
       return state.newTaskId
     },
@@ -235,7 +248,6 @@ export default new Vuex.Store({
           task.startDate = Number.parseInt(toDate)
           task.startMonth = Number.parseInt(toMonth)
           task.startYear = Number.parseInt(toYear)
-          console.log(task)
         }
 
         return task

@@ -1,11 +1,11 @@
 <template>
   <div class="task-board">
-    <h2>{{ dateString }}のタスク</h2>
-    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate">
-      <li v-for="task of dailyTasks(date)" :key="task.id">
+    <h2>{{ dateString }}の完了タスク</h2>
+    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true">
+      <li v-for="task of completedTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.startDate }}日)
-          <span v-if="task.expectedTime">({{ task.expectedTime }}分)</span>
+          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.completedDate }}日)
+          <span >完了({{ toMinutes(task.elapsedTime) }}分)</span>
         </p>
         <TaskForm
           v-else
@@ -62,7 +62,7 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters(['dailyTasks', 'newTaskId']),
+    ...mapGetters(['completedTasks', 'newTaskId']),
     dateString() {
       let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
@@ -70,11 +70,14 @@ export default {
       let day = weekDay[this.date.getDay()]
       return `${month}/${date}(${day})`
     },
-    separatedDate() {
-      let year = this.date.getFullYear()
-      let month = this.date.getMonth()
-      let date = this.date.getDate()
-      return `${year}-${month}-${date}`
+    // separatedDate() {
+    //   let year = this.date.getFullYear()
+    //   let month = this.date.getMonth()
+    //   let date = this.date.getDate()
+    //   return `${year}-${month}-${date}`
+    // }
+    toMinutes(time) {
+      return Math.ceil(time / (1000 * 60))
     }
   },
   methods: {
@@ -95,7 +98,7 @@ export default {
       setTimeout(() => self.$refs.updateForm[0].focusForm())
     },
     addTask(e) {
-      let tasks = this.dailyTasks(this.date)
+      let tasks = this.completedTasks(this.date)
       let newOrder
       if (tasks.length === 0) {
         newOrder = 0
@@ -108,7 +111,7 @@ export default {
         id: this.newTaskId,
         content: e.content,
         expectedTime: e.expectedTime,
-        isCompleted: false,
+        isCompleted: true,
         elapsedTime: 0,
         startYear: this.date.getFullYear(),
         startMonth: this.date.getMonth(),
@@ -146,9 +149,9 @@ export default {
       }
     }
   },
-  mounted() {
-    this[SET_NEW_TASK_ID]()
-  }
+  // mounted() {
+  //   this[SET_NEW_TASK_ID]()
+  // }
 }
 </script>
 
