@@ -3,8 +3,9 @@
     <draggable tag="ul" group="ITEMS" @end="onDragEnd" class="working-task" :data-working="true">
       <h2>現在のタスク</h2>
       <div v-if="currentTask">
-        <button @click.prevent="start">スタート</button>
-        <span v-if="elapsedTime">経過時間: {{ elapsedTime }}</span>
+        <button @click.prevent="start" v-if="!timerId">スタート</button>
+        <button @click.prevent="stop" v-else>一時停止</button>
+        <span>経過時間: {{ elapsedTime }}</span>
       </div>
       <li v-if="currentTask">
         <p v-if="!formIsOpen" @click="openForm()">
@@ -34,7 +35,8 @@ import TaskForm from '@/components/TaskForm.vue'
 import {
   UPDATE_TASK_CONTENT,
   UNSET_CURRENT_TASK,
-  START_TASK
+  START_TASK,
+  STOP_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -54,7 +56,7 @@ export default {
     ...mapGetters(['currentTask']),
   },
   methods: {
-    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK]),
+    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK, STOP_TASK]),
     closeForm() {
       this.formIsOpen = false
     },
@@ -81,11 +83,22 @@ export default {
       this[UNSET_CURRENT_TASK](payload)
     },
     computeElapsedTime() {
-      let started = this.currentTask.startedTime
-      let now = Date.now()
-      this.elapsedTime = Math.floor((now - started) / (1000))
+      let elapsed = this.currentTask.elapsedTime
+      if (this.currentTask.onProgress) {
+        let started = this.currentTask.stoppedTime || this.currentTask.startedTime
+        elapsed += (Date.now() - started)
+      }
+      let h = Math.floor(elapsed / (1000 * 60 * 60))
+      h = (h > 0) ? `${h}:` : ''
+      let m = Math.floor(elapsed / (1000 * 60)) % 60
+      m = (m < 10) ? `0${m}` : m
+      let s = Math.floor(elapsed / 1000) % 60
+      s = (s < 10) ? `0${s}` : s
+      this.elapsedTime = `${h}${m}:${s}`
     },
     setTimer() {
+      if (!this.currentTask.onProgress) return false;
+
       let self = this
       this.timerId = setInterval(() => {
         self.computeElapsedTime()
@@ -94,6 +107,11 @@ export default {
     start() {
       this[START_TASK]()
       this.setTimer()
+    },
+    stop() {
+      this[STOP_TASK]()
+      clearInterval(this.timerId)
+      this.timerId = null
     }
   },
   mounted() {

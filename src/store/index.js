@@ -10,7 +10,8 @@ import {
   MOVE_TASK_TO_ANOTER,
   SET_CURRENT_TASK,
   UNSET_CURRENT_TASK,
-  START_TASK
+  START_TASK,
+  STOP_TASK,
 } from './mutation-types'
 
 Vue.use(Vuex)
@@ -243,8 +244,24 @@ export default new Vuex.Store({
     },
     [START_TASK](state) {
       let currentTask = state.tasks.find(task => task.id === state.currentTaskId)
-      currentTask.startedTime = Date.now()
+      if (currentTask.onProgress) return false;
+
+      if (currentTask.startedTime) {
+        currentTask.stoppedTime = Date.now()
+      } else {
+        currentTask.startedTime = Date.now()
+      }
       currentTask.onProgress = true
+    },
+    [STOP_TASK](state) {
+      let currentTask = state.tasks.find(task => task.id === state.currentTaskId)
+      if (!currentTask.onProgress) return false;
+
+      currentTask.onProgress = false
+      let stoppedTime = currentTask.stoppedTime
+      let fromTime = stoppedTime || currentTask.startedTime
+      currentTask.elapsedTime += (Date.now() - fromTime)
+      currentTask.stoppedTime = Date.now()
     }
   },
   actions: {
@@ -274,6 +291,9 @@ export default new Vuex.Store({
     },
     [START_TASK]({ commit }, payload) {
       commit(START_TASK, payload)
+    },
+    [STOP_TASK]({ commit }, payload) {
+      commit(STOP_TASK, payload)
     },
   },
   modules: {
