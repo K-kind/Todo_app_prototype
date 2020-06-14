@@ -1,31 +1,34 @@
 <template>
   <div class="task-board">
-    <h2>{{ dateString }}の完了タスク</h2>
+    <h2>本日の完了タスク</h2>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true">
       <li v-for="task of completedTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.completedDate }}日)
-          <span >完了({{ toMinutes(task.elapsedTime) }}分)</span>
+          <span >完了({{ taskTimes(task) }}分)</span>
         </p>
         <TaskForm
           v-else
           :formIsOpen="true"
           :taskId="task.id"
           :taskContent="task.content"
-          :taskExpectedTime="`${task.expectedTime}`"
+          :taskExpectedTime="task.elapsedTime"
           :isNewTask="false"
+          :isCompletedTask="true"
+          :c="true"
           ref="updateForm"
           @close-form="closeForm"
           @update-task="updateTask($event, task.id)"
         ></TaskForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+タスクを追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+完了済みを追加</a>
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
-      taskExpectedTime=""
+      :taskExpectedTime="0"
       :isNewTask="true"
+      :isCompletedTask="true"
       ref="newForm"
       @close-form="closeForm"
       @add-task="addTask"
@@ -51,7 +54,7 @@ export default {
   data() {
     return {
       newFormIsOpen: false,
-      onUpdatedTaskId: ''
+      onUpdatedTaskId: '',
     }
   },
   props: {
@@ -63,25 +66,30 @@ export default {
   },
   computed: {
     ...mapGetters(['completedTasks', 'newTaskId']),
-    dateString() {
-      let weekDay = ['日', '月', '火', '水', '木', '金', '土']
-      let month =  this.date.getMonth() + 1
-      let date =  this.date.getDate()
-      let day = weekDay[this.date.getDay()]
-      return `${month}/${date}(${day})`
-    },
+    // dateString() {
+    //   let weekDay = ['日', '月', '火', '水', '木', '金', '土']
+    //   let month =  this.date.getMonth() + 1
+    //   let date =  this.date.getDate()
+    //   let day = weekDay[this.date.getDay()]
+    //   return `${month}/${date}(${day})`
+    // },
     // separatedDate() {
     //   let year = this.date.getFullYear()
     //   let month = this.date.getMonth()
     //   let date = this.date.getDate()
     //   return `${year}-${month}-${date}`
     // }
-    toMinutes(time) {
-      return Math.ceil(time / (1000 * 60))
-    }
   },
   methods: {
     ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER, SET_CURRENT_TASK]),
+    toMinutes(time) {
+      return Math.ceil(time / (1000 * 60))
+    },
+    taskTimes(task) {
+      let elapsed = task.elapsedTime
+      let elapsedString = (elapsed ? `${this.toMinutes(elapsed)}/` : '')
+      return `${elapsedString}${this.toMinutes(task.expectedTime)}`
+    },
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -110,12 +118,11 @@ export default {
       let newTask = {
         id: this.newTaskId,
         content: e.content,
-        expectedTime: e.expectedTime,
+        elapsedTime: e.elapsedTime,
         isCompleted: true,
-        elapsedTime: 0,
-        startYear: this.date.getFullYear(),
-        startMonth: this.date.getMonth(),
-        startDate: this.date.getDate(),
+        completedYear: this.date.getFullYear(),
+        completedMonth: this.date.getMonth(),
+        completedDate: this.date.getDate(),
         order: newOrder
       }
       this[ADD_NEW_TASK](newTask)
@@ -147,11 +154,8 @@ export default {
         payload = Object.assign(payload, { toYear, toMonth, toDate})
         this[MOVE_TASK_TO_ANOTER](payload)
       }
-    }
+    },
   },
-  // mounted() {
-  //   this[SET_NEW_TASK_ID]()
-  // }
 }
 </script>
 

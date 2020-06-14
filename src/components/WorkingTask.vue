@@ -5,12 +5,13 @@
       <button @click.prevent="start" v-if="!timerId">スタート</button>
       <button @click.prevent="stop" v-else>一時停止</button>
       <span>経過時間: {{ elapsedTime }}</span>
+      <button @click.prevent="complete">完了</button>
     </div>
     <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
       <li v-if="currentTask">
         <p v-if="!formIsOpen" @click="openForm()">
           {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.startDate }}日)
-          <span v-if="currentTask.expectedTime">({{ currentTask.expectedTime }}分)</span>
+          <span>({{ toMinutes(currentTask.expectedTime) }}分)</span>
         </p>
         <TaskForm
           v-else
@@ -36,7 +37,8 @@ import {
   UPDATE_TASK_CONTENT,
   UNSET_CURRENT_TASK,
   START_TASK,
-  STOP_TASK
+  STOP_TASK,
+  COMPLETE_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -57,7 +59,10 @@ export default {
     ...mapGetters(['currentTask']),
   },
   methods: {
-    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK, STOP_TASK]),
+    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK, STOP_TASK, COMPLETE_TASK]),
+    toMinutes(time) {
+      return Math.ceil(time / (1000 * 60))
+    },
     closeForm() {
       this.formIsOpen = false
     },
@@ -120,6 +125,14 @@ export default {
       this[STOP_TASK]()
       clearInterval(this.timerId)
       this.timerId = null
+    },
+    complete() {
+      if (this.currentTask.onProgress) {
+        this.stop()
+      }
+      this[COMPLETE_TASK]({taskId: this.currentTask.id})
+      this[UNSET_CURRENT_TASK]()
+      this.disableDrag(false)
     },
     onAdd() {
       this.disableDrag(true)

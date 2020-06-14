@@ -1,6 +1,6 @@
 <template>
   <div class="daily-column">
-    <DailyTasks v-for="n in 7" :date="day(n)" :key="n"></DailyTasks>
+    <DailyTasks v-for="n in 6" :date="day(n)" :key="n"></DailyTasks>
   </div>
 </template>
 

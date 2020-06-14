@@ -5,14 +5,14 @@
       <li v-for="task of dailyTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.startDate }}日)
-          <span v-if="task.expectedTime">({{ task.expectedTime }}分)</span>
+          <span>({{ taskTimes(task) }}分)</span>
         </p>
         <TaskForm
           v-else
           :formIsOpen="true"
           :taskId="task.id"
           :taskContent="task.content"
-          :taskExpectedTime="`${task.expectedTime}`"
+          :taskExpectedTime="task.expectedTime"
           :isNewTask="false"
           ref="updateForm"
           @close-form="closeForm"
@@ -24,7 +24,7 @@
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
-      taskExpectedTime=""
+      :taskExpectedTime="0"
       :isNewTask="true"
       ref="newForm"
       @close-form="closeForm"
@@ -75,10 +75,18 @@ export default {
       let month = this.date.getMonth()
       let date = this.date.getDate()
       return `${year}-${month}-${date}`
-    }
+    },
   },
   methods: {
     ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER, SET_CURRENT_TASK]),
+    toMinutes(time) {
+      return Math.ceil(time / (1000 * 60))
+    },
+    taskTimes(task) {
+      let elapsed = task.elapsedTime
+      let elapsedString = (elapsed ? `${this.toMinutes(elapsed)}/` : '')
+      return `${elapsedString}${this.toMinutes(task.expectedTime)}`
+    },
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -145,9 +153,6 @@ export default {
         this[MOVE_TASK_TO_ANOTER](payload)
       }
     }
-  },
-  mounted() {
-    this[SET_NEW_TASK_ID]()
   }
 }
 </script>

@@ -12,6 +12,7 @@ import {
   UNSET_CURRENT_TASK,
   START_TASK,
   STOP_TASK,
+  COMPLETE_TASK
 } from './mutation-types'
 
 Vue.use(Vuex)
@@ -132,13 +133,13 @@ export default new Vuex.Store({
       state.newTaskId = latestId + 1
     },
     [UPDATE_TASK_CONTENT](state, payload) {
-      state.tasks.map(function(task) {
-        if (task.id === payload.id) {
-          task.content = payload.content
-          task.expectedTime = payload.expectedTime
-          return task
-        }
-      })
+      let updatedTask = state.tasks.find(task => task.id === payload.id)
+      updatedTask.content = payload.content
+      if ('elapsedTime' in payload) {
+        updatedTask.elapsedTime = payload.elapsedTime
+      } else {
+        updatedTask.expectedTime = payload.expectedTime
+      }
     },
     // 全部taskをfilterすると時間がかかるので要改善
     [DELETE_TASK_BY_ID](state, taskId) {
@@ -233,7 +234,10 @@ export default new Vuex.Store({
         return task
       })
     },
-    [UNSET_CURRENT_TASK](state, { toYear, toMonth, toDate, newIndex, taskId }) {
+    [UNSET_CURRENT_TASK](state, { toYear, toMonth, toDate, newIndex, taskId } = {}) {
+      state.currentTaskId = null
+      if (!toYear) return false;
+
       state.tasks = state.tasks.map(task => {
         if (
           task.startDate == toDate &&
@@ -252,7 +256,6 @@ export default new Vuex.Store({
 
         return task
       })
-      state.currentTaskId = null
     },
     [START_TASK](state) {
       let currentTask = state.tasks.find(task => task.id === state.currentTaskId)
@@ -274,6 +277,45 @@ export default new Vuex.Store({
       let fromTime = stoppedTime || currentTask.startedTime
       currentTask.elapsedTime += (Date.now() - fromTime)
       currentTask.stoppedTime = Date.now()
+    },
+    [COMPLETE_TASK](state, { taskId, toIndex } = {}) {
+      let completedTask = state.tasks.find(task => task.id === taskId)
+
+      let now = new Date
+      completedTask.completedYear = now.getFullYear()
+      completedTask.completedMonth = now.getMonth()
+      completedTask.completedDate = now.getDate()
+      completedTask.isCompleted = true
+
+      if (toIndex) {
+        state.tasks = state.tasks.map(task => {
+          if (
+            task.completedDate == completedTask.completedDate && // または今日
+            task.completedMonth == completedTask.completedMonth &&
+            task.completedYear == completedTask.completedYear &&
+            task.order >= toIndex
+          ) { task.order++ }
+          return task
+        })
+        completedTask.order = toIndex
+      } else {
+        let orders = []
+        for (let task of state.tasks) {
+          if (
+            task.completedDate === completedTask.completedDate &&
+            task.completedMonth === completedTask.completedMonth &&
+            task.completedYear === completedTask.completedYear &&
+            task.id !== taskId
+          ) { orders.push(task.order) }
+        }
+        let newOrder = 0
+        if (orders.length) { newOrder = Math.max.apply(null, orders) + 1 }
+        completedTask.order = newOrder
+
+        state.tasks = state.tasks.concat([]) // リアクティブ対策
+        // Vue.set(state.tasks, key, value)
+      }
+      // Vue.set(completedTask, 'isCompleted', true)
     }
   },
   actions: {
@@ -306,6 +348,9 @@ export default new Vuex.Store({
     },
     [STOP_TASK]({ commit }, payload) {
       commit(STOP_TASK, payload)
+    },
+    [COMPLETE_TASK]({ commit }, payload) {
+      commit(COMPLETE_TASK, payload)
     },
   },
   modules: {

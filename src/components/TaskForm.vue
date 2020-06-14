@@ -16,7 +16,7 @@
         @blur="formBlur"
         type="number"
         id="new-expected-time"
-        placeholder="予定(分)"
+        :placeholder="placeholderText"
       />
     </div>
     <div>
@@ -37,8 +37,9 @@ export default {
     formIsOpen: Boolean,
     taskId: Number,
     taskContent: String,
-    taskExpectedTime: String,
-    isNewTask: Boolean
+    taskExpectedTime: Number,
+    isNewTask: Boolean,
+    isCompletedTask: Boolean,
   },
   data() {
     return {
@@ -48,11 +49,10 @@ export default {
   },
   computed: {
     buttonText() {
-      if (this.isNewTask) {
-        return '追加'
-      } else {
-        return '変更'
-      }
+      return this.isNewTask ? '追加' : '変更'
+    },
+    placeholderText() {
+      return this.isCompletedTask ? '経過（分）' : '予定（分）'
     }
   },
   methods: {
@@ -83,11 +83,14 @@ export default {
     changeTask() {
       if (!this.taskContentData) { return false }
 
+      let timeKey = (this.isCompletedTask ? 'elapsedTime' : 'expectedTime')
+      this.taskExpectedTimeData *= (1000 * 60)
+
       if (this.isNewTask) {
         this.$emit('add-task',
           {
             content: this.taskContentData,
-            expectedTime: this.taskExpectedTimeData
+            [timeKey]: this.taskExpectedTimeData
           }
         )
         this.taskContentData = ''
@@ -96,7 +99,7 @@ export default {
         this.$emit('update-task',
           {
             content: this.taskContentData,
-            expectedTime: this.taskExpectedTimeData
+            [timeKey]: this.taskExpectedTimeData
           }
         )
       }
