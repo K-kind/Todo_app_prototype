@@ -1,10 +1,10 @@
 <template>
   <div class="task-board">
-    <h2>{{ dateString }}のタスク</h2>
+    <h2><slot name="taskDate1"></slot>{{ dateString }}<slot name="taskDate2"></slot></h2>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate">
       <li v-for="task of dailyTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.startDate }}日)
+          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
           <span>({{ taskTimes(task) }}分)</span>
         </p>
         <TaskForm
@@ -107,7 +107,7 @@ export default {
     addTask(e) {
       let tasks = this.dailyTasks(this.date)
       let newOrder
-      if (tasks.length === 0) {
+      if (!tasks.length) {
         newOrder = 0
       } else {
         newOrder = 1 + Math.max.apply(null,
@@ -120,9 +120,9 @@ export default {
         expectedTime: e.expectedTime,
         isCompleted: false,
         elapsedTime: 0,
-        startYear: this.date.getFullYear(),
-        startMonth: this.date.getMonth(),
-        startDate: this.date.getDate(),
+        year: this.date.getFullYear(),
+        month: this.date.getMonth(),
+        date: this.date.getDate(),
         order: newOrder
       }
       this[ADD_NEW_TASK](newTask)
@@ -144,6 +144,7 @@ export default {
         fromDate,
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
+        fromCompleted: false
       }
 
       if (e.to.dataset.completed) {
@@ -151,7 +152,8 @@ export default {
           order: e.oldIndex,
           date: fromDate,
           month: fromMonth,
-          year: fromYear
+          year: fromYear,
+          isCompleted: false
         })
         this[MOVE_TASK_TO_COMPLETED](payload)
         this[COMPLETE_TASK]({ taskId: movedTask.id, newIndex: e.newIndex })

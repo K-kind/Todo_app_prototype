@@ -23,9 +23,9 @@ export default {
     dailyTasks(state) {
       return date => {
         return state.tasks.filter(task =>
-          task.startYear === date.getFullYear() &&
-          task.startMonth === date.getMonth() &&
-          task.startDate === date.getDate() &&
+          task.year === date.getFullYear() &&
+          task.month === date.getMonth() &&
+          task.date === date.getDate() &&
           !task.isCurrent && !task.isCompleted
         ).sort((a, b) => {
           if (a.order < b.order) return -1;
@@ -37,9 +37,10 @@ export default {
     completedTasks(state) {
       return date => {
         return state.tasks.filter(task =>
-          task.completedYear === date.getFullYear() &&
-          task.completedMonth === date.getMonth() &&
-          task.completedDate === date.getDate()
+          task.year === date.getFullYear() &&
+          task.month === date.getMonth() &&
+          task.date === date.getDate() &&
+          task.isCompleted
         ).sort((a, b) => {
           if (a.order < b.order) return -1;
           if (a.order > b.order) return 1;
@@ -54,12 +55,13 @@ export default {
       return state.tasks.find(task => task.id === state.currentTaskId)
     },
     getTaskByDate(state) {
-      return ({ order, date, month, year }) => {
+      return ({ order, date, month, year, isCompleted }) => {
         return state.tasks.find(task =>
           task.order === order &&
-          task.startDate == date &&
-          task.startMonth == month &&
-          task.startYear == year
+          task.date == date &&
+          task.month == month &&
+          task.year == year &&
+          task.isCompleted === isCompleted
         )
       }
     }
@@ -73,7 +75,7 @@ export default {
       if (state.tasks.length === 0) {
         latestId = 0
       } else {
-        latestId = Math.max.apply(null, state.tasks.map(item => item.id))
+        latestId = Math.max.apply(null, state.tasks.map(task => task.id))
       }
       state.newTaskId = latestId + 1
     },
@@ -98,16 +100,11 @@ export default {
 
       state.tasks = state.tasks.map(task => {
         if (
-          task.startDate === deletedTask.startDate &&
-          task.startMonth === deletedTask.startMonth &&
-          task.startYear === deletedTask.startYear &&
-          task.order > deletedTask.order
-        ) { task.order-- }
-        else if (
-          task.completedDate === deletedTask.completedDate &&
-          task.completedMonth === deletedTask.completedMonth &&
-          task.completedYear === deletedTask.completedYear &&
-          task.order > deletedTask.order
+          task.date === deletedTask.date &&
+          task.month === deletedTask.month &&
+          task.year === deletedTask.year &&
+          task.order > deletedTask.order &&
+          task.isCompleted === deletedTask.isCompleted
         ) { task.order-- }
 
         return task
@@ -115,23 +112,13 @@ export default {
     },
     [UPDATE_TASK_ORDER](state, {
       oldIndex, newIndex, fromDate, fromMonth, fromYear, fromCompleted
-    } = {}) {
+    }) {
       state.tasks = state.tasks.map(task => {
         if (
-          (
-            !fromCompleted && (
-              task.startDate != fromDate ||
-              task.startMonth != fromMonth ||
-              task.startYear != fromYear
-            )
-          ) ||
-          (
-            fromCompleted && (
-              task.completedDate != fromDate ||
-              task.completedMonth != fromMonth ||
-              task.completedYear != fromYear
-            )
-          )
+          task.date != fromDate ||
+          task.month != fromMonth ||
+          task.year != fromYear ||
+          task.isCompleted !== fromCompleted
         ) { return task }
 
         if (oldIndex < newIndex && task.order > oldIndex && task.order <= newIndex) { // 下げた時
@@ -148,38 +135,28 @@ export default {
       let oldIndex = payload.oldIndex
       let newIndex = payload.newIndex
 
-      let [date, month, year] = []
-      if (payload.fromCompleted) {
-        [date, month, year] = ['completedDate', 'completedMonth', 'completedYear']
-      } else {
-        [date, month, year] = ['startDate', 'startMonth', 'startYear']
-      }
-
       state.tasks = state.tasks.map(task => {
         if ( // 移動元
-          task[date] == payload.fromDate &&
-          task[month] == payload.fromMonth &&
-          task[year] == payload.fromYear
+          task.date == payload.fromDate &&
+          task.month == payload.fromMonth &&
+          task.year == payload.fromYear &&
+          task.isCompleted === payload.fromCompleted
         ) {
           if (task.order > oldIndex) {
             task.order--
           } else if (task.order === oldIndex) { // 自分自身
             task.order = newIndex
-            task.startDate= Number.parseInt(payload.toDate)
-            task.startMonth = Number.parseInt(payload.toMonth)
-            task.startYear = Number.parseInt(payload.toYear)
-            if (payload.fromCompleted) {
-              task[date] = null
-              task[month] = null
-              task[year] = null
-              task.isCompleted = false
-            }
+            task.date= Number.parseInt(payload.toDate)
+            task.month = Number.parseInt(payload.toMonth)
+            task.year = Number.parseInt(payload.toYear)
+            if (payload.fromCompleted) { task.isCompleted = false }
           }
         } else if ( // 移動先
-          task.startDate == payload.toDate &&
-          task.startMonth == payload.toMonth &&
-          task.startYear == payload.toYear &&
-          task.order >= newIndex
+          task.date == payload.toDate &&
+          task.month == payload.toMonth &&
+          task.year == payload.toYear &&
+          task.order >= newIndex &&
+          !task.isCompleted
         ) {
           task.order++
         }
@@ -191,71 +168,69 @@ export default {
       fromYear, fromMonth, fromDate, oldIndex
     }) {
       state.tasks = state.tasks.map(task => {
-        if (
-          task.startDate == fromDate &&
-          task.startMonth == fromMonth &&
-          task.startYear == fromYear &&
-          task.order > oldIndex
+        if ( // 移動元のみ
+          task.date == fromDate &&
+          task.month == fromMonth &&
+          task.year == fromYear &&
+          task.order > oldIndex &&
+          !task.isCompleted
         ) { task.order-- }
         return task
       })
     },
     [SET_CURRENT_TASK](state, {
       fromYear, fromMonth, fromDate, oldIndex, fromCompleted
-    } = {}) {
-      let [DATE, MONTH, YEAR] = []
-      if (fromCompleted) {
-        [DATE, MONTH, YEAR] = ['completedDate', 'completedMonth', 'completedYear']
-      } else {
-        [DATE, MONTH, YEAR] = ['startDate', 'startMonth', 'startYear']
-      }
+    }) {
       let currentTask = state.tasks.find(task =>
-        task[DATE] == fromDate &&
-        task[MONTH] == fromMonth &&
-        task[YEAR] == fromYear &&
-        task.order === oldIndex
+        task.date == fromDate &&
+        task.month == fromMonth &&
+        task.year == fromYear &&
+        task.order === oldIndex &&
+        task.isCompleted === fromCompleted
       )
       state.currentTaskId = currentTask.id
 
       state.tasks = state.tasks.map(task => {
         if (
-          task[DATE] == fromDate &&
-          task[MONTH] == fromMonth &&
-          task[YEAR] == fromYear &&
-          task.order > oldIndex
+          task.date == fromDate &&
+          task.month == fromMonth &&
+          task.year == fromYear &&
+          task.order > oldIndex &&
+          task.isCompleted === fromCompleted
         ) {
           task.order--
         } else if (task.id === currentTask.id) {
           task.isCurrent = true
           task.isCompleted = false
-          task[YEAR] = null
-          task[MONTH] = null
-          task[DATE] = null
+          task.year = null
+          task.month = null
+          task.date = null
         }
         return task
       })
     },
     [UNSET_CURRENT_TASK](state, { toYear, toMonth, toDate, newIndex, taskId } = {}) {
       state.currentTaskId = null
-      if (!toYear) {
+      if (!toYear) { // リアクティブでない可能性あり
         state.tasks.find(task => task.id === taskId).isCurrent = false
         return false
       }
 
       state.tasks = state.tasks.map(task => {
         if (
-          task.startDate == toDate &&
-          task.startMonth == toMonth &&
-          task.startYear == toYear &&
-          task.order >= newIndex
+          task.date == toDate &&
+          task.month == toMonth &&
+          task.year == toYear &&
+          task.order >= newIndex &&
+          !task.isCompleted
         ) { task.order++ }
 
         if (task.id === taskId) {
           task.isCurrent = false
           task.order = newIndex
-          task.startDate = Number.parseInt(toDate)
-          task.startMonth = Number.parseInt(toMonth)
-          task.startYear = Number.parseInt(toYear)
+          task.date = Number.parseInt(toDate)
+          task.month = Number.parseInt(toMonth)
+          task.year = Number.parseInt(toYear)
         }
 
         return task
@@ -284,23 +259,21 @@ export default {
     },
     [COMPLETE_TASK](state, { taskId, newIndex } = {}) {
       let completedTask = state.tasks.find(task => task.id === taskId)
-
       let now = new Date
-      completedTask.startYear = null
-      completedTask.startMonth = null
-      completedTask.startDate = null
-      completedTask.completedYear = now.getFullYear()
-      completedTask.completedMonth = now.getMonth()
-      completedTask.completedDate = now.getDate()
+
+      completedTask.year = now.getFullYear()
+      completedTask.month = now.getMonth()
+      completedTask.date = now.getDate()
       completedTask.isCompleted = true
 
       if (newIndex) {
         state.tasks = state.tasks.map(task => {
           if (
-            task.completedDate === completedTask.completedDate && // または今日
-            task.completedMonth === completedTask.completedMonth &&
-            task.completedYear === completedTask.completedYear &&
-            task.order >= newIndex
+            task.date === completedTask.date && // または今日
+            task.month === completedTask.month &&
+            task.year === completedTask.year &&
+            task.order >= newIndex &&
+            task.isCompleted
           ) { task.order++ }
 
           if (task.id === taskId) { task.order = newIndex }
@@ -310,10 +283,11 @@ export default {
         let orders = []
         for (let task of state.tasks) {
           if (
-            task.completedDate === completedTask.completedDate &&
-            task.completedMonth === completedTask.completedMonth &&
-            task.completedYear === completedTask.completedYear &&
-            task.id !== taskId
+            task.date === completedTask.date &&
+            task.month === completedTask.month &&
+            task.year === completedTask.year &&
+            task.id !== taskId &&
+            task.isCompleted
           ) { orders.push(task.order) }
         }
         let newOrder = 0

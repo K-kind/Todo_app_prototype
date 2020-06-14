@@ -4,7 +4,7 @@
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true">
       <li v-for="task of completedTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.completedDate }}日)
+          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
           <span >完了({{ taskTimes(task) }}分)</span>
         </p>
         <TaskForm
@@ -121,9 +121,9 @@ export default {
         expectedTime: 0,
         elapsedTime: e.elapsedTime,
         isCompleted: true,
-        completedYear: this.date.getFullYear(),
-        completedMonth: this.date.getMonth(),
-        completedDate: this.date.getDate(),
+        year: this.date.getFullYear(),
+        month: this.date.getMonth(),
+        date: this.date.getDate(),
         order: newOrder
       }
       this[ADD_NEW_TASK](newTask)

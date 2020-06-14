@@ -10,7 +10,7 @@
     <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
       <li v-if="currentTask">
         <p v-if="!formIsOpen" @click="openForm()">
-          {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.startDate }}日)
+          {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.date }}日)
           <span>({{ toMinutes(currentTask.expectedTime) }}分)</span>
         </p>
         <TaskForm
