@@ -110,6 +110,7 @@ export default {
     deleteTask() {
       this[DELETE_TASK_BY_ID](this.taskId)
       this.closeForm()
+      this.$emit('delete-current-task')
     }
   }
 }

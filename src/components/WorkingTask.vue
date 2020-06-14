@@ -18,11 +18,12 @@
           :formIsOpen="true"
           :taskId="currentTask.id"
           :taskContent="currentTask.content"
-          :taskExpectedTime="`${currentTask.expectedTime}`"
+          :taskExpectedTime="currentTask.expectedTime"
           :isNewTask="false"
           ref="updateForm"
           @close-form="closeForm"
           @update-task="updateTask($event, currentTask.id)"
+          @delete-current-task="disableDrag(false)"
         ></TaskForm>
       </li>
     </draggable>

@@ -149,6 +149,7 @@ export default new Vuex.Store({
 
       if (deletedTask.isCurrent) {
         state.currentTaskId = null
+        return false
       }
 
       state.tasks = state.tasks.map(task => {
@@ -156,15 +157,13 @@ export default new Vuex.Store({
           task.startDate === deletedTask.startDate &&
           task.startMonth === deletedTask.startMonth &&
           task.startYear === deletedTask.startYear &&
-          task.order > deletedTask.order &&
-          !task.isCompleted && !deletedTask.isCompleted
+          task.order > deletedTask.order
         ) { task.order-- }
         else if (
           task.completedDate === deletedTask.completedDate &&
           task.completedMonth === deletedTask.completedMonth &&
           task.completedYear === deletedTask.completedYear &&
-          task.order > deletedTask.order &&
-          task.isCompleted
+          task.order > deletedTask.order
         ) { task.order-- }
 
         return task
