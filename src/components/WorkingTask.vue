@@ -5,7 +5,7 @@
       <button @click.prevent="start" v-if="!timerId">スタート</button>
       <button @click.prevent="stop" v-else>一時停止</button>
       <span>経過時間: {{ elapsedTime }}</span>
-      <button @click.prevent="complete">完了</button>
+      <button @click.prevent="complete()">完了</button>
     </div>
     <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
       <li v-if="currentTask">
@@ -80,7 +80,11 @@ export default {
       if (e.to.dataset.working) {
         this.disableDrag(true)
         return false
+      } else if (e.to.dataset.completed) {
+        this.complete(e.newIndex)
+        return false
       }
+
       if (this.currentTask.onProgress) {
         this.stop()
       }
@@ -126,12 +130,15 @@ export default {
       clearInterval(this.timerId)
       this.timerId = null
     },
-    complete() {
+    complete(newIndex) {
       if (this.currentTask.onProgress) {
         this.stop()
       }
-      this[COMPLETE_TASK]({taskId: this.currentTask.id})
-      this[UNSET_CURRENT_TASK]()
+      let payload = { taskId: this.currentTask.id }
+      if (newIndex) { Object.assign(payload, { newIndex }) }
+      console.log(payload)
+      this[COMPLETE_TASK](payload)
+      this[UNSET_CURRENT_TASK]({ taskId: this.currentTask.id })
       this.disableDrag(false)
     },
     onAdd() {
@@ -163,7 +170,7 @@ export default {
 
 <style scoped>
 .working-task {
-  min-height: 24px;
+  min-height: 140px;
   background-color: bisque;
   padding: 10px 12px;
   margin: 0 8px 15px;

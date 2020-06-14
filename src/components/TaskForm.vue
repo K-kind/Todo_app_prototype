@@ -74,14 +74,17 @@ export default {
     },
     closeForm() {
       this.taskContentData = ''
-      this.taskExpectedTimeData = ''
+      this.taskExpectedTimeData = 0
       this.$emit('close-form')
     },
     focusForm() {
       this.$refs.contentForm.focus()
     },
     changeTask() {
-      if (!this.taskContentData) { return false }
+      if (!this.taskContentData) {
+        this.focusForm()
+        return false
+      }
 
       let timeKey = (this.isCompletedTask ? 'elapsedTime' : 'expectedTime')
       this.taskExpectedTimeData *= (1000 * 60)
@@ -94,7 +97,7 @@ export default {
           }
         )
         this.taskContentData = ''
-        this.taskExpectedTimeData = ''
+        this.taskExpectedTimeData = 0
       } else {
         this.$emit('update-task',
           {

@@ -86,7 +86,7 @@ export default new Vuex.Store({
           task.startYear === date.getFullYear() &&
           task.startMonth === date.getMonth() &&
           task.startDate === date.getDate() &&
-          !task.isCurrent
+          !task.isCurrent && !task.isCompleted
         ).sort((a, b) => {
           if (a.order < b.order) return -1;
           if (a.order > b.order) return 1;
@@ -155,8 +155,17 @@ export default new Vuex.Store({
           task.startDate === deletedTask.startDate &&
           task.startMonth === deletedTask.startMonth &&
           task.startYear === deletedTask.startYear &&
-          task.order > deletedTask.order
+          task.order > deletedTask.order &&
+          !task.isCompleted && !deletedTask.isCompleted
         ) { task.order-- }
+        else if (
+          task.completedDate === deletedTask.completedDate &&
+          task.completedMonth === deletedTask.completedMonth &&
+          task.completedYear === deletedTask.completedYear &&
+          task.order > deletedTask.order &&
+          task.isCompleted
+        ) { task.order-- }
+
         return task
       })
     },
@@ -217,7 +226,8 @@ export default new Vuex.Store({
         task.startDate == fromDate &&
         task.startMonth == fromMonth &&
         task.startYear == fromYear &&
-        task.order === oldIndex
+        task.order === oldIndex &&
+        !task.isCompleted
       )
       state.currentTaskId = currentTask.id
       state.tasks = state.tasks.map(task => {
@@ -236,7 +246,10 @@ export default new Vuex.Store({
     },
     [UNSET_CURRENT_TASK](state, { toYear, toMonth, toDate, newIndex, taskId } = {}) {
       state.currentTaskId = null
-      if (!toYear) return false;
+      if (!toYear) {
+        state.tasks.find(task => task.id === taskId).isCurrent = false
+        return false
+      }
 
       state.tasks = state.tasks.map(task => {
         if (
@@ -278,7 +291,7 @@ export default new Vuex.Store({
       currentTask.elapsedTime += (Date.now() - fromTime)
       currentTask.stoppedTime = Date.now()
     },
-    [COMPLETE_TASK](state, { taskId, toIndex } = {}) {
+    [COMPLETE_TASK](state, { taskId, newIndex } = {}) {
       let completedTask = state.tasks.find(task => task.id === taskId)
 
       let now = new Date
@@ -287,17 +300,18 @@ export default new Vuex.Store({
       completedTask.completedDate = now.getDate()
       completedTask.isCompleted = true
 
-      if (toIndex) {
+      if (newIndex) {
         state.tasks = state.tasks.map(task => {
           if (
-            task.completedDate == completedTask.completedDate && // または今日
-            task.completedMonth == completedTask.completedMonth &&
-            task.completedYear == completedTask.completedYear &&
-            task.order >= toIndex
+            task.completedDate === completedTask.completedDate && // または今日
+            task.completedMonth === completedTask.completedMonth &&
+            task.completedYear === completedTask.completedYear &&
+            task.order >= newIndex
           ) { task.order++ }
+
+          if (task.id === taskId) { task.order = newIndex }
           return task
         })
-        completedTask.order = toIndex
       } else {
         let orders = []
         for (let task of state.tasks) {

@@ -12,7 +12,7 @@
           :formIsOpen="true"
           :taskId="task.id"
           :taskContent="task.content"
-          :taskExpectedTime="task.elapsedTime"
+          :taskExpectedTime="toMinutes(task.elapsedTime)"
           :isNewTask="false"
           :isCompletedTask="true"
           :c="true"
@@ -118,6 +118,7 @@ export default {
       let newTask = {
         id: this.newTaskId,
         content: e.content,
+        expectedTime: 0,
         elapsedTime: e.elapsedTime,
         isCompleted: true,
         completedYear: this.date.getFullYear(),
