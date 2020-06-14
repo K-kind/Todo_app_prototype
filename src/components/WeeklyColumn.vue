@@ -1,13 +1,14 @@
 <template>
-
+  <WeeklyTasks />
 </template>
 
 <script>
-// import DailyTasks from '@/components/DailyTasks.vue'
+import WeeklyTasks from '@/components/WeeklyTasks.vue'
 
 export default {
-  name: 'WeekColumn',
-  // components: {
-  // }
+  name: 'WeeklyColumn',
+  components: {
+    WeeklyTasks
+  }
 }
 </script>

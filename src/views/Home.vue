@@ -3,6 +3,7 @@
     <WorkingColumn />
     <TodayColumn />
     <DailyColumn />
+    <WeeklyColumn />
   </div>
 </template>
 
@@ -10,6 +11,7 @@
 import WorkingColumn from '@/components/WorkingColumn.vue'
 import TodayColumn from '@/components/TodayColumn.vue'
 import DailyColumn from '@/components/DailyColumn.vue'
+import WeeklyColumn from '@/components/WeeklyColumn.vue'
 import { SET_NEW_TASK_ID } from '@/store/mutation-types'
 
 export default {
@@ -17,7 +19,8 @@ export default {
   components: {
     WorkingColumn,
     TodayColumn,
-    DailyColumn
+    DailyColumn,
+    WeeklyColumn
   },
   mounted() {
     this.$store.dispatch(SET_NEW_TASK_ID)
