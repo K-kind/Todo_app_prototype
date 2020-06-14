@@ -136,7 +136,6 @@ export default {
       this.closeForm()
     },
     onDragEnd(e) {
-      let toDateString = e.to.dataset.date
       let payload = {
         fromYear: this.date.getFullYear(),
         fromMonth: this.date.getMonth(),
@@ -151,8 +150,8 @@ export default {
         if (e.oldIndex === e.newIndex) { return false }
         this[UPDATE_TASK_ORDER](payload)
       } else {
-        let [toYear, toMonth, toDate] = toDateString.split('-')
-        payload = Object.assign(payload, { toYear, toMonth, toDate})
+        let [toYear, toMonth, toDate] = e.to.dataset.date.split('-')
+        payload = Object.assign(payload, { toYear, toMonth, toDate })
         this[MOVE_TASK_TO_ANOTHER](payload)
       }
     },

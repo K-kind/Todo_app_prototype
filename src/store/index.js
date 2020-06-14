@@ -153,21 +153,34 @@ export default new Vuex.Store({
       let oldIndex = payload.oldIndex
       let newIndex = payload.newIndex
 
+      let [date, month, year] = []
+      if (payload.fromCompleted) {
+        [date, month, year] = ['completedDate', 'completedMonth', 'completedYear']
+      } else {
+        [date, month, year] = ['startDate', 'startMonth', 'startYear']
+      }
+
       state.tasks = state.tasks.map(task => {
-        if (
-          task.startDate == payload.fromDate &&
-          task.startMonth == payload.fromMonth &&
-          task.startYear == payload.fromYear
+        if ( // 移動元
+          task[date] == payload.fromDate &&
+          task[month] == payload.fromMonth &&
+          task[year] == payload.fromYear
         ) {
           if (task.order > oldIndex) {
             task.order--
-          } else if (task.order === oldIndex) {
+          } else if (task.order === oldIndex) { // 自分自身
             task.order = newIndex
-            task.startDate = Number.parseInt(payload.toDate)
+            task.startDate= Number.parseInt(payload.toDate)
             task.startMonth = Number.parseInt(payload.toMonth)
             task.startYear = Number.parseInt(payload.toYear)
+            if (payload.fromCompleted) {
+              task[date] = null
+              task[month] = null
+              task[year] = null
+              task.isCompleted = false
+            }
           }
-        } else if (
+        } else if ( // 移動先
           task.startDate == payload.toDate &&
           task.startMonth == payload.toMonth &&
           task.startYear == payload.toYear &&

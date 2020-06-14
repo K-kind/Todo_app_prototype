@@ -146,6 +146,7 @@ export default {
       let self = this
       setTimeout(() => { // onEndの後にするため
         self.computeElapsedTime()
+        self.start()
       })
     },
     onClone() {

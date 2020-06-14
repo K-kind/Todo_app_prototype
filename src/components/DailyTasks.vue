@@ -162,7 +162,7 @@ export default {
         this[UPDATE_TASK_ORDER](payload)
       } else {
         let [toYear, toMonth, toDate] = toDateString.split('-')
-        Object.assign(payload, { toYear, toMonth, toDate})
+        Object.assign(payload, { toYear, toMonth, toDate })
         this[MOVE_TASK_TO_ANOTHER](payload)
       }
     }
