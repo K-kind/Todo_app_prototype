@@ -42,7 +42,8 @@ import {
   SET_NEW_TASK_ID,
   UPDATE_TASK_CONTENT,
   UPDATE_TASK_ORDER,
-  MOVE_TASK_TO_ANOTER,
+  MOVE_TASK_TO_ANOTHER,
+  MOVE_TASK_TO_COMPLETED,
   SET_CURRENT_TASK
 } from '@/store/mutation-types'
 
@@ -78,7 +79,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTER, SET_CURRENT_TASK]),
+    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },
@@ -143,14 +144,18 @@ export default {
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
       }
-      if (e.to.dataset.working) {
+
+      if (e.to.dataset.completed) {
+        this[MOVE_TASK_TO_COMPLETED](payload)
+        console.log('hello')
+      } else if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
       } else if (fromDateString === toDateString) {
         this[UPDATE_TASK_ORDER](payload)
       } else {
         let [toYear, toMonth, toDate] = toDateString.split('-')
-        payload = Object.assign(payload, { toYear, toMonth, toDate})
-        this[MOVE_TASK_TO_ANOTER](payload)
+        Object.assign(payload, { toYear, toMonth, toDate})
+        this[MOVE_TASK_TO_ANOTHER](payload)
       }
     }
   }

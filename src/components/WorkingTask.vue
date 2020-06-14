@@ -136,7 +136,6 @@ export default {
       }
       let payload = { taskId: this.currentTask.id }
       if (newIndex) { Object.assign(payload, { newIndex }) }
-      console.log(payload)
       this[COMPLETE_TASK](payload)
       this[UNSET_CURRENT_TASK]({ taskId: this.currentTask.id })
       this.disableDrag(false)
