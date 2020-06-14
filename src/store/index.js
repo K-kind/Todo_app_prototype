@@ -20,63 +20,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    tasks: [
-    //   {
-    //     id: 1,
-    //     content: 'Vueを学ぶ',
-    //     expectedTime: 30,
-    //     isCompleted: false,
-    //     elapsedTime: 0,
-    //     startYear: 2020,
-    //     startMonth: 5,
-    //     startDate: 12,
-    //     order: 1
-    //   },
-    //   {
-    //     id: 2,
-    //     content: 'Terraformを学ぶ',
-    //     expectedTime: 20,
-    //     isCompleted: false,
-    //     elapsedTime: 0,
-    //     startYear: 2020,
-    //     startMonth: 5,
-    //     startDate: 12,
-    //     order: 2
-    //   },
-    //   {
-    //     id: 3,
-    //     content: 'Design patternを学ぶ',
-    //     expectedTime: 10,
-    //     isCompleted: false,
-    //     elapsedTime: 0,
-    //     startYear: 2020,
-    //     startMonth: 5,
-    //     startDate: 12,
-    //     order: 3
-    //   },
-    //   {
-    //     id: 4,
-    //     content: 'GitHubを学ぶ',
-    //     expectedTime: 10,
-    //     isCompleted: false,
-    //     elapsedTime: 0,
-    //     startYear: 2020,
-    //     startMonth: 5,
-    //     startDate: 13,
-    //     order: 4
-    //   },
-    //   {
-    //     id: 5,
-    //     content: 'Linuxを学ぶ',
-    //     expectedTime: 10,
-    //     isCompleted: false,
-    //     elapsedTime: 0,
-    //     startYear: 2020,
-    //     startMonth: 5,
-    //     startDate: 13,
-    //     order: 5
-    //   },
-    ],
+    tasks: [],
     newTaskId: 1,
     currentTaskId: null
   },
@@ -114,11 +58,16 @@ export default new Vuex.Store({
     currentTask(state) {
       return state.tasks.find(task => task.id === state.currentTaskId)
     },
-    // getTaskById(state) {
-    //   return  taskId => {
-    //     state.tasks.find(task => task.id === taskId)
-    //   }
-    // }
+    getTaskByDate(state) {
+      return ({ order, date, month, year }) => {
+        return state.tasks.find(task =>
+          task.order === order &&
+          task.startDate == date &&
+          task.startMonth == month &&
+          task.startYear == year
+        )
+      }
+    }
   },
   mutations: {
     [ADD_NEW_TASK](state, payload) {
@@ -221,32 +170,16 @@ export default new Vuex.Store({
         return task
       })
     },
-    [MOVE_TASK_TO_COMPLETED](state, payload) {
-      // let oldIndex = payload.oldIndex
-
+    [MOVE_TASK_TO_COMPLETED](state, {
+      fromYear, fromMonth, fromDate, oldIndex
+    }) {
       state.tasks = state.tasks.map(task => {
         if (
-          task.startDate == payload.fromDate &&
-          task.startMonth == payload.fromMonth &&
-          task.startYear == payload.fromYear
-        ) {
-        //   if (task.order > oldIndex) {
-        //     task.order--
-        //   } else if (task.order === oldIndex) {
-        //     task.order = newIndex
-        //     task.startDate = Number.parseInt(payload.toDate)
-        //     task.startMonth = Number.parseInt(payload.toMonth)
-        //     task.startYear = Number.parseInt(payload.toYear)
-        //   }
-        // } else if (
-        //   task.startDate == payload.toDate &&
-        //   task.startMonth == payload.toMonth &&
-        //   task.startYear == payload.toYear &&
-        //   task.order >= newIndex
-        // ) {
-        //   task.order++
-        }
-
+          task.startDate == fromDate &&
+          task.startMonth == fromMonth &&
+          task.startYear == fromYear &&
+          task.order > oldIndex
+        ) { task.order-- }
         return task
       })
     },

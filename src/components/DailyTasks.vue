@@ -44,7 +44,8 @@ import {
   UPDATE_TASK_ORDER,
   MOVE_TASK_TO_ANOTHER,
   MOVE_TASK_TO_COMPLETED,
-  SET_CURRENT_TASK
+  SET_CURRENT_TASK,
+  COMPLETE_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -63,7 +64,7 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters(['dailyTasks', 'newTaskId']),
+    ...mapGetters(['dailyTasks', 'newTaskId', 'getTaskByDate']),
     dateString() {
       let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
@@ -79,7 +80,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK]),
+    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },
@@ -146,8 +147,14 @@ export default {
       }
 
       if (e.to.dataset.completed) {
+        let movedTask = this.getTaskByDate({
+          order: e.oldIndex,
+          date: fromDate,
+          month: fromMonth,
+          year: fromYear
+        })
         this[MOVE_TASK_TO_COMPLETED](payload)
-        console.log('hello')
+        this[COMPLETE_TASK]({ taskId: movedTask.id, newIndex: e.newIndex })
       } else if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
       } else if (fromDateString === toDateString) {
