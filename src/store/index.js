@@ -118,16 +118,25 @@ export default new Vuex.Store({
         return task
       })
     },
-    [UPDATE_TASK_ORDER](state, payload) {
-      let oldIndex = payload.oldIndex
-      let newIndex = payload.newIndex
-      if (oldIndex === newIndex) { return false }
-
+    [UPDATE_TASK_ORDER](state, {
+      oldIndex, newIndex, fromDate, fromMonth, fromYear, fromCompleted
+    } = {}) {
       state.tasks = state.tasks.map(task => {
         if (
-          task.startDate != payload.fromDate ||
-          task.startMonth != payload.fromMonth ||
-          task.startYear != payload.fromYear
+          (
+            !fromCompleted && (
+              task.startDate != fromDate ||
+              task.startMonth != fromMonth ||
+              task.startYear != fromYear
+            )
+          ) ||
+          (
+            fromCompleted && (
+              task.completedDate != fromDate ||
+              task.completedMonth != fromMonth ||
+              task.completedYear != fromYear
+            )
+          )
         ) { return task }
 
         if (oldIndex < newIndex && task.order > oldIndex && task.order <= newIndex) { // 下げた時

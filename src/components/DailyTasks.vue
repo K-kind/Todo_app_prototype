@@ -158,6 +158,7 @@ export default {
       } else if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
       } else if (fromDateString === toDateString) {
+        if (e.oldIndex === e.newIndex) { return false }
         this[UPDATE_TASK_ORDER](payload)
       } else {
         let [toYear, toMonth, toDate] = toDateString.split('-')
