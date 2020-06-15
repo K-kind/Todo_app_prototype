@@ -2,8 +2,8 @@
   <div class="home">
     <WorkingColumn />
     <TodayColumn />
-    <DailyColumn />
-    <WeeklyColumn />
+    <DailyColumn :startDate="startDate"/>
+    <WeeklyColumn @change-week="changeWeek"/>
   </div>
 </template>
 
@@ -21,6 +21,16 @@ export default {
     TodayColumn,
     DailyColumn,
     WeeklyColumn
+  },
+  data() {
+    return {
+      startDate: null
+    }
+  },
+  methods: {
+    changeWeek(startDate) {
+      this.startDate = startDate
+    }
   },
   mounted() {
     this.$store.dispatch('daily/' + SET_NEW_TASK_ID)

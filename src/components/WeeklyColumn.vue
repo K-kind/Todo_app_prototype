@@ -1,6 +1,6 @@
 <template>
   <div>
-    <WeeklyTasks />
+    <WeeklyTasks @change-week="changeWeek"/>
   </div>
 </template>
 
@@ -12,6 +12,11 @@ export default {
   name: 'WeeklyColumn',
   components: {
     WeeklyTasks
+  },
+  methods: {
+    changeWeek(startDate) {
+      this.$emit('change-week', startDate)
+    }
   },
   mounted() {
     this.$store.dispatch('weekly/' + SET_NEW_TASK_ID)

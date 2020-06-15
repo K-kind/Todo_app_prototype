@@ -1,6 +1,6 @@
 <template>
   <div class="daily-column">
-    <DailyTasks v-for="n in 6" :date="day(n)" :key="n"></DailyTasks>
+    <DailyTasks v-for="date in dates" :date="date" :key="date.toString()"></DailyTasks>
   </div>
 </template>
 
@@ -12,13 +12,35 @@ export default {
   components: {
     DailyTasks
   },
+  props: {
+    startDate: Date
+  },
+  computed: {
+    dates() {
+      let dates = []
+      if (this.startDate) {
+        for (let i = 0; i < 7; i++) {
+          let date = new Date(this.startDate.getTime())
+          date.setDate(date.getDate() + i)
+          dates.push(date)
+        }
+      } else {
+        for (let i = 1; i < 7; i++) {
+          let date = new Date
+          date.setDate(date.getDate() + i)
+          dates.push(date)
+        }
+      }
+      return dates
+    }
+  },
   methods: {
-    day(from_today) {
+    dayFromBase(from_today) {
       let date = new Date
       date.setDate(date.getDate() + from_today)
       return date
     }
-  }
+  },
 }
 </script>
 

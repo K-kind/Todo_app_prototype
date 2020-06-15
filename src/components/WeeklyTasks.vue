@@ -92,7 +92,8 @@ UPDATE_TASK_CONTENT, COMPLETE_TASK, UPDATE_TASK_ORDER]),
       } else {
         this.daysFromToday -= 7
       }
-      this.$emit('change-week', this.weekRange.monday)
+      let startDate = (this.daysFromToday === 0 ? null : this.weekRange.monday)
+      this.$emit('change-week', startDate)
     },
     closeForm() {
       this.newFormIsOpen = false
