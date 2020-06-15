@@ -22,8 +22,12 @@ export default {
     weeklyTasks(state) {
       return date => {
         return state.tasks.filter(task =>
-          task.startDate === date
-        )
+          task.startDate === date.toISOString()
+        ).sort((a, b) => {
+          if (a.order < b.order) return -1;
+          if (a.order > b.order) return 1;
+          return 0;
+        });
       }
     },
     newTaskId(state) {
@@ -41,14 +45,9 @@ export default {
       }
       state.newTaskId = latestId + 1
     },
-    [UPDATE_TASK_CONTENT](state, payload) {
+    [UPDATE_TASK_CONTENT](state, payload) { // { content, id }
       let updatedTask = state.tasks.find(task => task.id === payload.id)
       updatedTask.content = payload.content
-      if ('elapsedTime' in payload) {
-        updatedTask.elapsedTime = payload.elapsedTime
-      } else {
-        updatedTask.expectedTime = payload.expectedTime
-      }
     },
     // 全部taskをfilterすると時間がかかるので要改善
     [DELETE_TASK_BY_ID](state, taskId) {

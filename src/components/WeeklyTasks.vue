@@ -103,13 +103,15 @@ UPDATE_TASK_CONTENT,]),
           tasks.map(task => task.order)
         )
       }
+      console.log(this.weekRange.monday)
       let newTask = {
         id: this.newTaskId,
         content: e.content,
         isChecked: false,
-        startDate: this.weekRange.monday,
+        startDate: this.weekRange.monday.toISOString(), // vuexpersistedの自動変換に合わせる
         order: newOrder
       }
+      console.log(newTask.startDate)
       this[ADD_NEW_TASK](newTask)
       this[SET_NEW_TASK_ID]()
       this.$refs.newForm.focusForm()
