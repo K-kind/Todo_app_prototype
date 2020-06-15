@@ -63,16 +63,9 @@ export default {
         return task
       })
     },
-    [UPDATE_TASK_ORDER](state, {
-      oldIndex, newIndex, fromDate, fromMonth, fromYear, fromCompleted
-    }) {
+    [UPDATE_TASK_ORDER](state, { oldIndex, newIndex, startDate }) {
       state.tasks = state.tasks.map(task => {
-        if (
-          task.date != fromDate ||
-          task.month != fromMonth ||
-          task.year != fromYear ||
-          task.isCompleted !== fromCompleted
-        ) { return task }
+        if (task.startDate !== startDate) { return task }
 
         if (oldIndex < newIndex && task.order > oldIndex && task.order <= newIndex) { // 下げた時
           task.order--

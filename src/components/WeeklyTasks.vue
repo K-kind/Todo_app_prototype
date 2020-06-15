@@ -1,7 +1,7 @@
 <template>
   <div class="week-task-board">
     <h2>{{ weekString }}</h2>
-    <draggable tag="ul" group="WEEK">
+    <draggable tag="ul" group="WEEK" @end="onDragEnd">
       <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
         <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
@@ -40,8 +40,8 @@ import {
   ADD_NEW_TASK,
   SET_NEW_TASK_ID,
   UPDATE_TASK_CONTENT,
-  // UPDATE_TASK_ORDER,
-  COMPLETE_TASK
+  COMPLETE_TASK,
+  UPDATE_TASK_ORDER,
 } from '@/store/mutation-types'
 
 export default {
@@ -80,7 +80,7 @@ export default {
   },
   methods: {
     ...mapActions('weekly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
-UPDATE_TASK_CONTENT, COMPLETE_TASK]),
+UPDATE_TASK_CONTENT, COMPLETE_TASK, UPDATE_TASK_ORDER]),
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -122,6 +122,16 @@ UPDATE_TASK_CONTENT, COMPLETE_TASK]),
     },
     checkTask(task) {
       this[COMPLETE_TASK]({ taskId: task.id, taskIsChecked: task.isChecked })
+    },
+    onDragEnd(e) {
+      if (e.oldIndex === e.newIndex) { return false }
+
+      let payload = {
+        oldIndex: e.oldIndex,
+        newIndex: e.newIndex,
+        startDate: this.weekRange.monday.toISOString()
+      }
+      this[UPDATE_TASK_ORDER](payload)
     }
   }
 }
