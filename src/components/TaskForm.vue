@@ -6,7 +6,6 @@
         ref="contentForm"
         @blur="formBlur"
         type="text"
-        id="new-content"
         placeholder="タスク内容"
         autocomplete="off"
       />
@@ -15,7 +14,6 @@
         ref="timeForm"
         @blur="formBlur"
         type="number"
-        id="new-expected-time"
         :placeholder="placeholderText"
       />
     </div>

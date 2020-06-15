@@ -42,7 +42,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions('daily', [DELETE_TASK_BY_ID]),
+    ...mapActions('weekly', [DELETE_TASK_BY_ID]),
     formBlur() {
       let self = this
       setTimeout(() => {
@@ -83,3 +83,9 @@ export default {
   }
 }
 </script>
+
+<style  scoped>
+form {
+  display: inline-block;
+}
+</style>

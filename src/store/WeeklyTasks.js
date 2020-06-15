@@ -3,7 +3,8 @@ import {
   SET_NEW_TASK_ID,
   UPDATE_TASK_CONTENT,
   DELETE_TASK_BY_ID,
-  UPDATE_TASK_ORDER
+  UPDATE_TASK_ORDER,
+  COMPLETE_TASK
 } from './mutation-types'
 
 export default {
@@ -49,23 +50,14 @@ export default {
       let updatedTask = state.tasks.find(task => task.id === payload.id)
       updatedTask.content = payload.content
     },
-    // 全部taskをfilterすると時間がかかるので要改善
     [DELETE_TASK_BY_ID](state, taskId) {
       let deletedTask = state.tasks.find(task => task.id === taskId)
       state.tasks = state.tasks.filter(task => task.id !== taskId)
 
-      if (deletedTask.isCurrent) {
-        state.currentTaskId = null
-        return false
-      }
-
       state.tasks = state.tasks.map(task => {
         if (
-          task.date === deletedTask.date &&
-          task.month === deletedTask.month &&
-          task.year === deletedTask.year &&
-          task.order > deletedTask.order &&
-          task.isCompleted === deletedTask.isCompleted
+          task.startDate === deletedTask.startDate &&
+          task.order > deletedTask.order
         ) { task.order-- }
 
         return task
@@ -92,6 +84,14 @@ export default {
         return task
       })
     },
+    [COMPLETE_TASK](state, { taskId, taskIsChecked }) {
+      state.tasks = state.tasks.map(task => {
+        if (task.id === taskId) {
+          task.taskIsChecked = taskIsChecked
+        }
+        return task
+      })
+    }
   },
   actions: {
     [ADD_NEW_TASK]({ commit }, payload) {
@@ -108,6 +108,9 @@ export default {
     },
     [UPDATE_TASK_ORDER]({ commit }, payload) {
       commit(UPDATE_TASK_ORDER, payload)
+    },
+    [COMPLETE_TASK]({ commit }, payload) {
+      commit(COMPLETE_TASK, payload)
     },
   }
 }

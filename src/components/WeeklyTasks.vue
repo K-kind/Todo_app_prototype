@@ -3,6 +3,7 @@
     <h2>{{ weekString }}</h2>
     <draggable tag="ul" group="WEEK">
       <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
+        <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }}
           <span >完了({{ task.isChecked }})</span>
@@ -40,7 +41,7 @@ import {
   SET_NEW_TASK_ID,
   UPDATE_TASK_CONTENT,
   // UPDATE_TASK_ORDER,
-  // COMPLETE_TASK
+  COMPLETE_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -79,7 +80,7 @@ export default {
   },
   methods: {
     ...mapActions('weekly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
-UPDATE_TASK_CONTENT,]),
+UPDATE_TASK_CONTENT, COMPLETE_TASK]),
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -103,7 +104,6 @@ UPDATE_TASK_CONTENT,]),
           tasks.map(task => task.order)
         )
       }
-      console.log(this.weekRange.monday)
       let newTask = {
         id: this.newTaskId,
         content: e.content,
@@ -111,7 +111,6 @@ UPDATE_TASK_CONTENT,]),
         startDate: this.weekRange.monday.toISOString(), // vuexpersistedの自動変換に合わせる
         order: newOrder
       }
-      console.log(newTask.startDate)
       this[ADD_NEW_TASK](newTask)
       this[SET_NEW_TASK_ID]()
       this.$refs.newForm.focusForm()
@@ -121,6 +120,9 @@ UPDATE_TASK_CONTENT,]),
       this[UPDATE_TASK_CONTENT](task)
       this.closeForm()
     },
+    checkTask(task) {
+      this[COMPLETE_TASK]({ taskId: task.id, taskIsChecked: task.isChecked })
+    }
   }
 }
 </script>
@@ -148,5 +150,6 @@ li {
 p {
   margin: 0;
   padding: 10px;
+  display: inline-block;
 }
 </style>
