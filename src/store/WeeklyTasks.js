@@ -3,8 +3,24 @@
 
 export default {
   state: {
-    tasks: [],
+    weeklyTasks: [
+      // startDate: Date,
+      // content: String,
+      // order: Number,
+      // isChecked: Boolean
+    ],
     newTaskId: 1,
-    currentTaskId: null
+  },
+  getters: {
+    weeklyTasks(state) {
+      return date => {
+        return state.weeklyTasks(task =>
+          task.startDate === date
+        )
+      }
+    }
+  },
+  newTaskId(state) {
+    return state.newTaskId
   },
 }
