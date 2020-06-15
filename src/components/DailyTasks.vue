@@ -64,7 +64,7 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters(['dailyTasks', 'newTaskId', 'getTaskByDate']),
+    ...mapGetters('daily', ['dailyTasks', 'newTaskId', 'getTaskByDate']),
     dateString() {
       let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
@@ -80,7 +80,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
+    ...mapActions('daily', [ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },

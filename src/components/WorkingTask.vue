@@ -57,10 +57,10 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters(['currentTask']),
+    ...mapGetters('daily', ['currentTask']),
   },
   methods: {
-    ...mapActions([UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK, STOP_TASK, COMPLETE_TASK]),
+    ...mapActions('daily', [UPDATE_TASK_CONTENT, UNSET_CURRENT_TASK, START_TASK, STOP_TASK, COMPLETE_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },

@@ -14,6 +14,7 @@ import {
 } from './mutation-types'
 
 export default {
+  namespaced: true,
   state: {
     tasks: [],
     newTaskId: 1,

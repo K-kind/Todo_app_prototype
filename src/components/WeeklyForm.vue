@@ -42,7 +42,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions([DELETE_TASK_BY_ID]),
+    ...mapActions('daily', [DELETE_TASK_BY_ID]),
     formBlur() {
       let self = this
       setTimeout(() => {

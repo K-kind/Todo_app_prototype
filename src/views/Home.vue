@@ -23,7 +23,7 @@ export default {
     WeeklyColumn
   },
   mounted() {
-    this.$store.dispatch(SET_NEW_TASK_ID)
+    this.$store.dispatch('daily/' + SET_NEW_TASK_ID)
   }
 }
 </script>

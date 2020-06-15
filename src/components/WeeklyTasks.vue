@@ -35,6 +35,13 @@
 import draggable from 'vuedraggable'
 import { mapGetters, mapActions } from 'vuex'
 import WeeklyForm from '@/components/WeeklyForm.vue'
+import {
+  ADD_NEW_TASK,
+  SET_NEW_TASK_ID,
+  UPDATE_TASK_CONTENT,
+  // UPDATE_TASK_ORDER,
+  // COMPLETE_TASK
+} from '@/store/mutation-types'
 
 export default {
   name: 'WeeklyTask',
@@ -49,7 +56,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['weeklyTasks', 'newTaskId']),
+    ...mapGetters('weekly', ['weeklyTasks', 'newTaskId']),
     weekRange() {
         let today = new Date()
         let year = today.getFullYear()
@@ -71,7 +78,8 @@ export default {
     }
   },
   methods: {
-    ...mapActions([]),
+    ...mapActions('weekly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
+UPDATE_TASK_CONTENT,]),
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -102,7 +110,7 @@ export default {
         startDate: this.weekRange.monday,
         order: newOrder
       }
-      this[ADD_NEW_TASK](newTask) // 名前空間を分ける
+      this[ADD_NEW_TASK](newTask)
       this[SET_NEW_TASK_ID]()
       this.$refs.newForm.focusForm()
     },
