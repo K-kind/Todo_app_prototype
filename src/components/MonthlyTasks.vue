@@ -1,12 +1,12 @@
 <template>
-  <div class="week-task-board">
-    <div class="week-task-buttons">
-      <a v-if="daysFromToday !== 0" href="Javascript:void(0)" @click="weekFoward(false)">&lt;</a>
-      <span class="this-week"><h2>{{ weekString }}</h2></span>
-      <a href="Javascript:void(0)" @click="weekFoward(true)">&gt;</a>
+  <div class="month-task-board">
+    <div class="month-task-buttons">
+      <a v-if="monthsFromToday !== 0" href="Javascript:void(0)" @click="monthFoward(false)">&lt;</a>
+      <span class="this-month"><h2>{{ monthString }}</h2></span>
+      <a href="Javascript:void(0)" @click="monthFoward(true)">&gt;</a>
     </div>
-    <draggable tag="ul" group="WEEK" @end="onDragEnd">
-      <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
+    <draggable tag="ul" group="MONTH" @end="onDragEnd">
+      <li v-for="task of monthlyTasks(startDate)" :key="task.id">
         <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }}
@@ -25,7 +25,7 @@
         ></LongTermForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+週目標を追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+月目標を追加</a>
     <LongTermForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
@@ -51,7 +51,7 @@ import {
 } from '@/store/mutation-types'
 
 export default {
-  name: 'WeeklyTask',
+  name: 'MonthlyTask',
   components: {
     draggable,
     LongTermForm
@@ -60,42 +60,33 @@ export default {
     return {
       newFormIsOpen: false,
       onUpdatedTaskId: null,
-      daysFromToday: 0
+      monthsFromToday: 0
     }
   },
   computed: {
-    ...mapGetters('weekly', ['weeklyTasks', 'newTaskId']),
-    weekRange() {
+    ...mapGetters('monthly', ['monthlyTasks', 'newTaskId']),
+    startDate() {
       let today = new Date()
       let year = today.getFullYear()
-      let month = today.getMonth()
-      let date = today.getDate() + this.daysFromToday
-      let day_num = today.getDay()
-      let mondayDate = date - day_num + 1
-      let sundayDate = mondayDate + 6
-      let monday = new Date(year, month, mondayDate)
-      let sunday = new Date(year, month, sundayDate)
-      return { monday, sunday }
+      let month = today.getMonth() + this.monthsFromToday
+      return new Date(year, month, 1)
     },
-    weekString() {
-      let monday = this.weekRange.monday
-      let sunday = this.weekRange.sunday
-      let mondayString = `${monday.getMonth() + 1}/${monday.getDate()}(月)`
-      let sundayString = `${sunday.getMonth() + 1}/${sunday.getDate()}(日)`
-      return `${mondayString} - ${sundayString}`
+    monthString() {
+      let month = this.startDate.getMonth() + 1
+      return `${month}月`
     }
   },
   methods: {
-    ...mapActions('weekly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
+    ...mapActions('monthly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
 UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
-    weekFoward(toFoward) {
+    monthFoward(toFoward) {
       if (toFoward) {
-        this.daysFromToday += 7
+        this.monthsFromToday++
       } else {
-        this.daysFromToday -= 7
+        this.monthsFromToday--
       }
-      let startDate = (this.daysFromToday === 0 ? null : this.weekRange.monday)
-      this.$emit('change-week', startDate)
+      let startDate = (this.monthsFromToday === 0 ? null : this.startDate)
+      this.$emit('change-month', startDate)
     },
     closeForm() {
       this.newFormIsOpen = false
@@ -113,7 +104,7 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
       setTimeout(() => self.$refs.updateForm[0].focusForm())
     },
     addTask(e) { // e: { content }
-      let tasks = this.weeklyTasks(this.weekRange.monday)
+      let tasks = this.monthlyTasks(this.startDate)
       let newOrder = 0
       if (tasks.length) {
         newOrder = 1 + Math.max.apply(null,
@@ -124,7 +115,7 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
         id: this.newTaskId,
         content: e.content,
         isChecked: false,
-        startDate: this.weekRange.monday.toISOString(), // vuexpersistedの自動変換に合わせる
+        startDate: this.startDate.toISOString(), // vuexpersistedの自動変換に合わせる
         order: newOrder
       }
       this[ADD_NEW_TASK](newTask)
@@ -148,7 +139,7 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
       let payload = {
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
-        startDate: this.weekRange.monday.toISOString()
+        startDate: this.startDate.toISOString()
       }
       this[UPDATE_TASK_ORDER](payload)
     }
@@ -157,16 +148,16 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
 </script>
 
 <style scoped>
-.week-task-board {
+.month-task-board {
   background-color: azure;
   width: 320px;
   margin: 0 8px 15px;
   padding: 10px 12px;
 }
-.week-task-buttons {
+.month-task-buttons {
   text-align: center;
 }
-.this-week {
+.this-month {
   padding: 0 10px;
 }
 h2 {

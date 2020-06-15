@@ -3,7 +3,8 @@
     <WorkingColumn />
     <TodayColumn />
     <DailyColumn :startDate="startDate"/>
-    <WeeklyColumn @change-week="changeWeek"/>
+    <WeeklyColumn @change-week="changeWeek" :monthStartDate="monthStartDate"/>
+    <MonthlyColumn @change-month="changeMonth"/>
   </div>
 </template>
 
@@ -12,6 +13,7 @@ import WorkingColumn from '@/components/WorkingColumn.vue'
 import TodayColumn from '@/components/TodayColumn.vue'
 import DailyColumn from '@/components/DailyColumn.vue'
 import WeeklyColumn from '@/components/WeeklyColumn.vue'
+import MonthlyColumn from '@/components/MonthlyColumn.vue'
 import { SET_NEW_TASK_ID } from '@/store/mutation-types'
 
 export default {
@@ -20,16 +22,21 @@ export default {
     WorkingColumn,
     TodayColumn,
     DailyColumn,
-    WeeklyColumn
+    WeeklyColumn,
+    MonthlyColumn,
   },
   data() {
     return {
-      startDate: null
+      startDate: null,
+      monthStartDate: null
     }
   },
   methods: {
     changeWeek(startDate) {
       this.startDate = startDate
+    },
+    changeMonth(startDate) {
+      this.monthStartDate = startDate
     }
   },
   mounted() {

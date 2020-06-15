@@ -6,8 +6,6 @@
         ref="contentForm"
         @blur="formBlur"
         type="text"
-        id="new-content"
-        placeholder="週の目標"
         autocomplete="off"
       />
     </div>
@@ -20,11 +18,8 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import { DELETE_TASK_BY_ID } from '@/store/mutation-types'
-
 export default {
-  name: 'WeeklyForm',
+  name: 'LongTermForm',
   props: {
     formIsOpen: Boolean,
     taskId: Number,
@@ -42,7 +37,6 @@ export default {
     },
   },
   methods: {
-    ...mapActions('weekly', [DELETE_TASK_BY_ID]),
     formBlur() {
       let self = this
       setTimeout(() => {
@@ -77,8 +71,7 @@ export default {
       }
     },
     deleteTask() {
-      this[DELETE_TASK_BY_ID](this.taskId)
-      this.closeForm()
+      this.$emit('delete-task', this.taskId)
     }
   }
 }
