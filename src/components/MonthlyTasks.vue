@@ -63,6 +63,9 @@ export default {
       monthsFromToday: 0
     }
   },
+  props: {
+    weekStartDate: Date
+  },
   computed: {
     ...mapGetters('monthly', ['monthlyTasks', 'newTaskId']),
     startDate() {
@@ -142,6 +145,27 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
         startDate: this.startDate.toISOString()
       }
       this[UPDATE_TASK_ORDER](payload)
+    }
+  },
+  watch: {
+    weekStartDate(firstDate) {
+      if (firstDate) {
+        let year = firstDate.getFullYear()
+        let month = firstDate.getMonth()
+        let date = firstDate.getDate()
+        let day_num = firstDate.getDay()
+        let sundayDate = date - day_num + 7
+        let sunday = new Date(year, month, sundayDate)
+        // this.daysFromToday += (sunday - this.weekRange.sunday) / (1000 * 60 * 60 * 24)
+        let gap = sunday.getMonth() - this.startDate.getMonth()
+        if (gap === 1 || gap === -11) {
+          this.monthsFromToday++
+        } else if (gap === -1 || gap === 11) {
+          this.monthsFromToday--
+        }
+      } else {
+        this.monthsFromToday = 0
+      }
     }
   }
 }

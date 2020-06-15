@@ -4,7 +4,7 @@
     <TodayColumn />
     <DailyColumn :startDate="startDate"/>
     <WeeklyColumn @change-week="changeWeek" :monthStartDate="monthStartDate"/>
-    <MonthlyColumn @change-month="changeMonth"/>
+    <MonthlyColumn @change-month="changeMonth" :weekStartDate="startDate" />
   </div>
 </template>
 
