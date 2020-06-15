@@ -1,6 +1,10 @@
 <template>
   <div class="week-task-board">
-    <h2>{{ weekString }}</h2>
+    <div class="week-task-buttons">
+      <a v-if="daysFromToday !== 0" href="Javascript:void(0)" @click="weekFoward(false)">&lt;</a>
+      <span class="this-week">{{ weekString }}</span>
+      <a href="Javascript:void(0)" @click="weekFoward(true)">&gt;</a>
+    </div>
     <draggable tag="ul" group="WEEK" @end="onDragEnd">
       <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
         <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
@@ -53,7 +57,8 @@ export default {
   data() {
     return {
       newFormIsOpen: false,
-      onUpdatedTaskId: null
+      onUpdatedTaskId: null,
+      daysFromToday: 0
     }
   },
   computed: {
@@ -62,7 +67,7 @@ export default {
         let today = new Date()
         let year = today.getFullYear()
         let month = today.getMonth()
-        let date = today.getDate()
+        let date = today.getDate() + this.daysFromToday
         let day_num = today.getDay()
         let mondayDate = date - day_num + 1
         let sundayDate = mondayDate + 6
@@ -81,6 +86,14 @@ export default {
   methods: {
     ...mapActions('weekly', [ADD_NEW_TASK, SET_NEW_TASK_ID,
 UPDATE_TASK_CONTENT, COMPLETE_TASK, UPDATE_TASK_ORDER]),
+    weekFoward(toFoward) {
+      if (toFoward) {
+        this.daysFromToday += 7
+      } else {
+        this.daysFromToday -= 7
+      }
+      this.$emit('change-week', this.weekRange.monday)
+    },
     closeForm() {
       this.newFormIsOpen = false
       let self = this
@@ -143,6 +156,12 @@ UPDATE_TASK_CONTENT, COMPLETE_TASK, UPDATE_TASK_ORDER]),
   width: 320px;
   margin: 0 8px 15px;
   padding: 10px 12px;
+}
+.week-task-buttons {
+  text-align: center;
+}
+.this-week {
+  padding: 0 10px;
 }
 h2 {
   text-align: center;
