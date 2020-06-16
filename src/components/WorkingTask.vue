@@ -18,7 +18,7 @@
           :formIsOpen="true"
           :taskId="currentTask.id"
           :taskContent="currentTask.content"
-          :taskExpectedTime="currentTask.expectedTime"
+          :taskExpectedTime="toMinutes(currentTask.expectedTime)"
           :isNewTask="false"
           ref="updateForm"
           @close-form="closeForm"
