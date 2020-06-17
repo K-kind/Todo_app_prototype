@@ -1,17 +1,19 @@
 <template>
-  <div class="week-task-board">
+  <div class="task-board">
     <div class="week-task-buttons">
       <a v-if="daysFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="weekFoward(false)"><i class="el-icon-caret-left"></i></a>
-      <span class="this-week"><h2>{{ weekString }}</h2></span>
+      <span class="this-week"><h2 class="task-board__heading">{{ weekString }}</h2></span>
       <a v-if="daysFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="weekFoward(true)"><i class="el-icon-caret-right"></i></a>
     </div>
     <draggable tag="ul" group="WEEK" @end="onDragEnd">
-      <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
-        <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
-        <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          {{ task.order }}: ID.{{ task.id }}: {{ task.content }}
-          <span >完了({{ task.isChecked }})</span>
-        </p>
+      <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id"  class="task-board__li">
+        <div v-if="onUpdatedTaskId !== task.id" class="task-board__task">
+          <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)" />
+          <p class="task-board__p" @click="openUpdateForm(task.id)">
+            {{ task.order }}: ID.{{ task.id }}: {{ task.content }}
+            <span >完了({{ task.isChecked }})</span>
+          </p>
+        </div>
         <LongTermForm
           v-else
           :formIsOpen="true"
@@ -173,11 +175,8 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
 </script>
 
 <style scoped>
-.week-task-board {
-  background-color: azure;
-  width: 320px;
-  margin: 0 8px 15px;
-  padding: 10px 12px;
+.task-board {
+  background-color: rgb(242, 255, 240);
 }
 .week-task-buttons {
   text-align: center;
@@ -187,22 +186,13 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
 }
 h2 {
   display: inline-block;
-  margin: 0 0 8px;
-  font-size: 1.6rem;
 }
-ul {
-  list-style-type: none;
-  padding-left: 0;
+.task-board__task {
+  display: flex;
+  align-items: center;
 }
-li {
-  cursor: pointer;
-  border: solid #ddd 1px;
-  border-radius: 3px;
-  margin: 8px 0;
-  padding: 3px 10px;
-}
-p {
-  line-height: 1.8;
-  display: inline-block;
+.task-board__p {
+  margin-left: 10px;
+  width: 100%;
 }
 </style>

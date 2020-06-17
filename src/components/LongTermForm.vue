@@ -1,18 +1,19 @@
 <template>
   <form v-show="formIsOpen">
-    <div>
+    <div class="content-block">
       <input
         v-model="taskContentData"
         ref="contentForm"
         @blur="formBlur"
         type="text"
+        class="content-input"
         autocomplete="off"
       />
     </div>
     <div>
       <input @click.prevent="changeTask" type="submit" :value="buttonText" ref="submitButton">
       <button v-if="!isNewTask" @click.prevent="deleteTask" ref="deleteButton">削除</button>
-      <a @click="closeForm" href="Javascript:void(0)">x</a>
+      <a @click="closeForm" href="Javascript:void(0)"><i class="el-icon-close"></i></a>
     </div>
   </form>
 </template>
@@ -79,6 +80,13 @@ export default {
 
 <style  scoped>
 form {
-  display: inline-block;
+  padding: 6px 10px;
+}
+.content-input {
+  width: 100%;
+  padding: 6px 8px;
+}
+.content-block {
+  margin-bottom: 8px;
 }
 </style>

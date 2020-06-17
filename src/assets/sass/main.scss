@@ -1,4 +1,6 @@
 @import 'prepends.scss';
+@import 'BEM/task-board.scss';
+
 html {
   font-size: 62.5%;
 }
@@ -9,6 +11,9 @@ body {
   box-sizing: border-box;
   margin: 0px;
   padding: 0px;
+}
+ul {
+  list-style: none;
 }
 .clearfix {
   clear: both;

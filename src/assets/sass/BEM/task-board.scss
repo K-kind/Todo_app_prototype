@@ -1,0 +1,30 @@
+.task-board {
+  background-color: azure;
+  width: 320px;
+  margin: 0 8px 15px;
+  padding: 10px 12px;
+  &__time {
+    min-width: 40px;
+    text-align: right;
+    align-self: center;
+  }
+  &__heading {
+    margin: 0 0 8px;
+    font-size: 1.6rem;
+  }
+  &__li {
+    border: solid #ddd 1px;
+    border-radius: 3px;
+    margin: 8px 0;
+  }
+  &__task {
+    cursor: pointer;
+    padding: 3px 10px;
+    background-color: white;
+  }
+  &__p {
+    line-height: 1.8;
+    display: flex;
+    justify-content: space-between;
+  }
+}

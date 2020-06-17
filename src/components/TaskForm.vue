@@ -7,19 +7,20 @@
         @blur="formBlur"
         type="text"
         placeholder="タスク内容"
-        class="task-content-input"
+        class="content-input"
         autocomplete="off"
       />
     </div>
     <div class="time-inputs">
-      <label for="" class="task-time-label">{{ labelText }}</label>
+      <label for="" class="time-label">{{ labelText }}</label>
       <input
         v-model="taskExpectedTimeData"
         ref="timeForm"
         @blur="formBlur"
         type="number"
-        class="task-time-input"
+        class="time-input"
         :min="0"
+        :max="999"
         :step="10"
       />
     </div>
@@ -121,19 +122,22 @@ export default {
 </script>
 
 <style scoped>
-.task-content-input {
+.content-input {
   width: 100%;
   padding: 6px 8px;
 }
-.task-time-input {
+.time-input {
   width: 55px;
   padding: 3px 0 3px 6px;
 }
-.task-time-label {
+.time-label {
   margin-right: 6px;
 }
 .time-inputs {
   margin: 5px 0;
   text-align: right;
+}
+form {
+  padding: 6px 10px;
 }
 </style>

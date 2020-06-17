@@ -1,12 +1,14 @@
 <template>
   <div class="task-board">
-    <h2>{{ dateString }}の完了タスク</h2>
+    <h2 class="task-board__heading">{{ dateString }}の完了タスク</h2>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate">
-      <li v-for="task of completedTasks(date)" :key="task.id">
-        <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
-          {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
-          <span >完了({{ taskTimes(task) }}分)</span>
-        </p>
+      <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li">
+        <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
+          <p class="task-board__p">
+            {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
+            <span class="task-board__time">{{ taskTimes(task) }}分</span>
+          </p>
+        </div>
         <TaskForm
           v-else
           :formIsOpen="true"
@@ -156,28 +158,5 @@ export default {
 </script>
 
 <style scoped>
-.task-board {
-  background-color: azure;
-  width: 320px;
-  margin: 0 8px 15px;
-  padding: 10px 12px;
-}
-h2 {
-  margin: 0 0 8px;
-  font-size: 1.6rem;
-}
-ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-li {
-  cursor: pointer;
-  border: solid #ddd 1px;
-  border-radius: 3px;
-  margin: 8px 0;
-  padding: 3px 10px;
-}
-p {
-  line-height: 1.8;
-}
+
 </style>

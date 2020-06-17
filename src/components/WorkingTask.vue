@@ -1,18 +1,20 @@
 <template>
-  <div class="working-task">
-    <h2>現在のタスク</h2>
+  <div class="task-board">
+    <h2 class="task-board__heading">現在のタスク</h2>
     <div v-if="currentTask">
-      <button @click.prevent="start" v-if="!timerId">スタート</button>
-      <button @click.prevent="stop" v-else>一時停止</button>
+      <a href="Javascript:void(0)" @click="start" v-if="!timerId"><i class="el-icon-video-play"></i></a>
+      <a href="Javascript:void(0)" @click="stop" v-else><i class="el-icon-video-pause"></i></a>
       <span>経過時間: {{ elapsedTime }}</span>
       <button @click.prevent="complete()">完了</button>
     </div>
     <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
-      <li v-if="currentTask">
-        <p v-if="!formIsOpen" @click="openForm()">
-          {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.date }}日)
-          <span>({{ toMinutes(currentTask.expectedTime) }}分)</span>
-        </p>
+      <li v-if="currentTask" class="task-board__li">
+        <div v-if="!formIsOpen" @click="openForm()" class="task-board__task">
+          <p class="task-board__p">
+            {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.date }}日)
+            <span class="task-board__time">{{ toMinutes(currentTask.expectedTime) }}分</span>
+          </p>
+        </div>
         <TaskForm
           v-else
           :formIsOpen="true"
@@ -170,29 +172,11 @@ export default {
 </script>
 
 <style scoped>
-.working-task {
+.task-board {
   min-height: 140px;
   background-color: bisque;
-  padding: 10px 12px;
-  margin: 0 8px 15px;
 }
 h2 {
-  margin: 0 0 8px;
-  font-size: 1.6rem;
   text-align: center;
-}
-ul {
-  list-style-type: none;
-  padding-left: 0;
-}
-li {
-  cursor: pointer;
-  border: solid #ddd 1px;
-  border-radius: 3px;
-  margin: 8px 0;
-  padding: 3px 10px;
-}
-p {
-  line-height: 1.8;
 }
 </style>
