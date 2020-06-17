@@ -2,9 +2,9 @@
   <div class="home">
     <WorkingColumn />
     <TodayColumn />
-    <DailyColumn :startDate="startDate"/>
-    <WeeklyColumn @change-week="changeWeek" :monthStartDate="monthStartDate"/>
-    <MonthlyColumn @change-month="changeMonth" :weekStartDate="startDate" />
+    <DailyColumn :startDate="weekStartDate" />
+    <WeeklyColumn @change-week="changeWeek" :monthStartDate="monthStartDate" />
+    <MonthlyColumn @change-month="changeMonth" :weekStartDate="weekStartDate" />
   </div>
 </template>
 
@@ -27,13 +27,13 @@ export default {
   },
   data() {
     return {
-      startDate: null,
+      weekStartDate: null,
       monthStartDate: null
     }
   },
   methods: {
     changeWeek(startDate) {
-      this.startDate = startDate
+      this.weekStartDate = startDate
     },
     changeMonth(startDate) {
       this.monthStartDate = startDate
