@@ -1,9 +1,9 @@
 <template>
   <div class="week-task-board">
     <div class="week-task-buttons">
-      <a v-if="daysFromToday !== 0" href="Javascript:void(0)" @click="weekFoward(false)">&lt;</a>
+      <a v-if="daysFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="weekFoward(false)">&lt;</a>
       <span class="this-week"><h2>{{ weekString }}</h2></span>
-      <a href="Javascript:void(0)" @click="weekFoward(true)">&gt;</a>
+      <a v-if="daysFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="weekFoward(true)">&gt;</a>
     </div>
     <draggable tag="ul" group="WEEK" @end="onDragEnd">
       <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id">
@@ -64,7 +64,8 @@ export default {
     }
   },
   props: {
-    monthStartDate: Date
+    monthStartDate: Date,
+    isArchive: Boolean
   },
   computed: {
     ...mapGetters('weekly', ['weeklyTasks', 'newTaskId']),

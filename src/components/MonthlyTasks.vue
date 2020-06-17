@@ -1,9 +1,9 @@
 <template>
   <div class="month-task-board">
     <div class="month-task-buttons">
-      <a v-if="monthsFromToday !== 0" href="Javascript:void(0)" @click="monthFoward(false)">&lt;</a>
+      <a v-if="monthsFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="monthFoward(false)">&lt;</a>
       <span class="this-month"><h2>{{ monthString }}</h2></span>
-      <a href="Javascript:void(0)" @click="monthFoward(true)">&gt;</a>
+      <a v-if="monthsFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="monthFoward(true)">&gt;</a>
     </div>
     <draggable tag="ul" group="MONTH" @end="onDragEnd">
       <li v-for="task of monthlyTasks(startDate)" :key="task.id">
@@ -64,7 +64,8 @@ export default {
     }
   },
   props: {
-    weekStartDate: Date
+    weekStartDate: Date,
+    isArchive: Boolean
   },
   computed: {
     ...mapGetters('monthly', ['monthlyTasks', 'newTaskId']),
@@ -151,7 +152,6 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
         let day_num = firstDate.getDay()
         let sundayDate = date - day_num + 7
         let sunday = new Date(year, month, sundayDate)
-        // this.daysFromToday += (sunday - this.weekRange.sunday) / (1000 * 60 * 60 * 24)
         let gap = sunday.getMonth() - this.startDate.getMonth()
         if (gap === 1 || gap === -11) {
           this.monthsFromToday++
