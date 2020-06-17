@@ -163,9 +163,8 @@ export default {
   padding: 10px 12px;
 }
 h2 {
-  text-align: center;
-  margin: 0 0 6px;
-  font-size: 16px;
+  margin: 0 0 8px;
+  font-size: 1.6rem;
 }
 ul {
   list-style-type: none;
@@ -174,9 +173,11 @@ ul {
 li {
   cursor: pointer;
   border: solid #ddd 1px;
+  border-radius: 3px;
+  margin: 8px 0;
+  padding: 3px 10px;
 }
 p {
-  margin: 0;
-  padding: 10px;
+  line-height: 1.8;
 }
 </style>

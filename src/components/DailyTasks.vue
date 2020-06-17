@@ -1,11 +1,12 @@
 <template>
   <div class="task-board">
-    <h2><slot name="taskDate1"></slot>{{ dateString }}のタスク</h2>
+    <h2><slot name="taskDate1"></slot>{{ dateString }}</h2>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate">
       <li v-for="task of dailyTasks(date)" :key="task.id">
-        <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
+        <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="">
+          <!-- {{ task.content }} -->
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
-          <span>({{ taskTimes(task) }}分)</span>
+          <span class="task-time">{{ taskTimes(task) }}分</span>
         </p>
         <TaskForm
           v-else
@@ -173,9 +174,8 @@ export default {
   padding: 10px 12px;
 }
 h2 {
-  text-align: center;
-  margin: 0 0 6px;
-  font-size: 16px;
+  margin: 0 0 8px;
+  font-size: 1.6rem;
 }
 ul {
   list-style-type: none;
@@ -184,9 +184,18 @@ ul {
 li {
   cursor: pointer;
   border: solid #ddd 1px;
+  border-radius: 3px;
+  margin: 8px 0;
+  padding: 3px 10px;
 }
 p {
-  margin: 0;
-  padding: 10px;
+  line-height: 1.8;
+  display: flex;
+  justify-content: space-between;
+}
+.task-time {
+  min-width: 40px;
+  text-align: right;
+  align-self: center;
 }
 </style>

@@ -7,20 +7,26 @@
         @blur="formBlur"
         type="text"
         placeholder="タスク内容"
+        class="task-content-input"
         autocomplete="off"
       />
+    </div>
+    <div class="time-inputs">
+      <label for="" class="task-time-label">{{ labelText }}</label>
       <input
         v-model="taskExpectedTimeData"
         ref="timeForm"
         @blur="formBlur"
         type="number"
-        :placeholder="placeholderText"
+        class="task-time-input"
+        :min="0"
+        :step="10"
       />
     </div>
     <div>
       <input @click.prevent="changeTask" type="submit" :value="buttonText" ref="submitButton">
       <button v-if="!isNewTask" @click.prevent="deleteTask" ref="deleteButton">削除</button>
-      <a @click="closeForm" href="Javascript:void(0)">x</a>
+      <a @click="closeForm" href="Javascript:void(0)"><i class="el-icon-close"></i></a>
     </div>
   </form>
 </template>
@@ -49,8 +55,8 @@ export default {
     buttonText() {
       return this.isNewTask ? '追加' : '変更'
     },
-    placeholderText() {
-      return this.isCompletedTask ? '経過（分）' : '予定（分）'
+    labelText() {
+      return this.isCompletedTask ? '経過(分):' : '予定(分):'
     }
   },
   methods: {
@@ -60,7 +66,7 @@ export default {
       setTimeout(() => {
         if (
           self.taskContentData === self.taskContent &&
-          self.taskExpectedTimeData === self.taskExpectedTime &&
+          self.taskExpectedTimeData == self.taskExpectedTime &&
           document.activeElement !== self.$refs.timeForm &&
           document.activeElement !== self.$refs.contentForm &&
           document.activeElement !== self.$refs.submitButton &&
@@ -113,3 +119,21 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.task-content-input {
+  width: 100%;
+  padding: 6px 8px;
+}
+.task-time-input {
+  width: 55px;
+  padding: 3px 0 3px 6px;
+}
+.task-time-label {
+  margin-right: 6px;
+}
+.time-inputs {
+  margin: 5px 0;
+  text-align: right;
+}
+</style>

@@ -1,9 +1,9 @@
 <template>
   <div class="month-task-board">
     <div class="month-task-buttons">
-      <a v-if="monthsFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="monthFoward(false)">&lt;</a>
+      <a v-if="monthsFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="monthFoward(false)"><i class="el-icon-caret-left"></i></a>
       <span class="this-month"><h2>{{ monthString }}</h2></span>
-      <a v-if="monthsFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="monthFoward(true)">&gt;</a>
+      <a v-if="monthsFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="monthFoward(true)"><i class="el-icon-caret-right"></i></a>
     </div>
     <draggable tag="ul" group="MONTH" @end="onDragEnd">
       <li v-for="task of monthlyTasks(startDate)" :key="task.id">
@@ -181,8 +181,8 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
 }
 h2 {
   display: inline-block;
-  margin: 0;
-  font-size: 16px;
+  margin: 0 0 6px;
+  font-size: 1.6rem;
 }
 ul {
   list-style-type: none;
@@ -191,10 +191,12 @@ ul {
 li {
   cursor: pointer;
   border: solid #ddd 1px;
+  border-radius: 3px;
+  margin: 8px 0;
+  padding: 3px 10px;
 }
 p {
-  margin: 0;
-  padding: 10px;
+  line-height: 1.8;
   display: inline-block;
 }
 </style>
