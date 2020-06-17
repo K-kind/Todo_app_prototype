@@ -15,7 +15,6 @@
           :taskExpectedTime="toMinutes(task.elapsedTime)"
           :isNewTask="false"
           :isCompletedTask="true"
-          :c="true"
           ref="updateForm"
           @close-form="closeForm"
           @update-task="updateTask($event, task.id)"
@@ -107,14 +106,7 @@ export default {
     },
     addTask(e) {
       let tasks = this.completedTasks(this.date)
-      let newOrder
-      if (tasks.length === 0) {
-        newOrder = 0
-      } else {
-        newOrder = 1 + Math.max.apply(null,
-          tasks.map(task => task.order)
-        )
-      }
+      let newOrder = tasks.length
       let newTask = {
         id: this.newTaskId,
         content: e.content,

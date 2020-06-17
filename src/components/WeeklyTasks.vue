@@ -117,12 +117,7 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
     },
     addTask(e) { // e: { content }
       let tasks = this.weeklyTasks(this.weekRange.monday)
-      let newOrder = 0
-      if (tasks.length) {
-        newOrder = 1 + Math.max.apply(null,
-          tasks.map(task => task.order)
-        )
-      }
+      let newOrder = tasks.length
       let newTask = {
         id: this.newTaskId,
         content: e.content,

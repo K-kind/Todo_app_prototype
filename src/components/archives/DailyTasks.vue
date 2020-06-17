@@ -1,31 +1,33 @@
 <template>
   <div class="task-board">
-    <h2><slot name="taskDate1"></slot>{{ dateString }}のタスク</h2>
-    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate">
-      <li v-for="task of dailyTasks(date)" :key="task.id">
+    <h2>{{ dateString }}のタスク</h2>
+    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true">
+      <li v-for="task of completedTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
-          <span>({{ taskTimes(task) }}分)</span>
+          <span >完了({{ taskTimes(task) }}分)</span>
         </p>
         <TaskForm
           v-else
           :formIsOpen="true"
           :taskId="task.id"
           :taskContent="task.content"
-          :taskExpectedTime="toMinutes(task.expectedTime)"
+          :taskExpectedTime="toMinutes(task.elapsedTime)"
           :isNewTask="false"
+          :isCompletedTask="true"
           ref="updateForm"
           @close-form="closeForm"
           @update-task="updateTask($event, task.id)"
         ></TaskForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+タスクを追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+完了済みを追加</a>
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
       :taskExpectedTime="0"
       :isNewTask="true"
+      :isCompletedTask="true"
       ref="newForm"
       @close-form="closeForm"
       @add-task="addTask"
@@ -43,9 +45,7 @@ import {
   UPDATE_TASK_CONTENT,
   UPDATE_TASK_ORDER,
   MOVE_TASK_TO_ANOTHER,
-  MOVE_TASK_TO_COMPLETED,
-  SET_CURRENT_TASK,
-  COMPLETE_TASK
+  SET_CURRENT_TASK
 } from '@/store/mutation-types'
 
 export default {
@@ -53,7 +53,7 @@ export default {
   data() {
     return {
       newFormIsOpen: false,
-      onUpdatedTaskId: ''
+      onUpdatedTaskId: '',
     }
   },
   props: {
@@ -64,7 +64,7 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters('daily', ['dailyTasks', 'newTaskId', 'getTaskByDate']),
+    ...mapGetters('daily', ['completedTasks', 'newTaskId']),
     dateString() {
       let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
@@ -72,15 +72,15 @@ export default {
       let day = weekDay[this.date.getDay()]
       return `${month}/${date}(${day})`
     },
-    separatedDate() {
-      let year = this.date.getFullYear()
-      let month = this.date.getMonth()
-      let date = this.date.getDate()
-      return `${year}-${month}-${date}`
-    },
+    // separatedDate() {
+    //   let year = this.date.getFullYear()
+    //   let month = this.date.getMonth()
+    //   let date = this.date.getDate()
+    //   return `${year}-${month}-${date}`
+    // }
   },
   methods: {
-    ...mapActions('daily', [ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
+    ...mapActions('daily', [ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, SET_CURRENT_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },
@@ -105,14 +105,14 @@ export default {
       setTimeout(() => self.$refs.updateForm[0].focusForm())
     },
     addTask(e) {
-      let tasks = this.dailyTasks(this.date)
+      let tasks = this.completedTasks(this.date)
       let newOrder = tasks.length
       let newTask = {
         id: this.newTaskId,
         content: e.content,
-        expectedTime: e.expectedTime,
-        isCompleted: false,
-        elapsedTime: 0,
+        expectedTime: 0,
+        elapsedTime: e.elapsedTime,
+        isCompleted: true,
         year: this.date.getFullYear(),
         month: this.date.getMonth(),
         date: this.date.getDate(),
@@ -128,40 +128,26 @@ export default {
       this.closeForm()
     },
     onDragEnd(e) {
-      let fromDateString = e.from.dataset.date
-      let toDateString = e.to.dataset.date
-      let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
       let payload = {
-        fromYear,
-        fromMonth,
-        fromDate,
+        fromYear: this.date.getFullYear(),
+        fromMonth: this.date.getMonth(),
+        fromDate: this.date.getDate(),
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
-        fromCompleted: false
+        fromCompleted: true
       }
-
-      if (e.to.dataset.completed) {
-        let movedTask = this.getTaskByDate({
-          order: e.oldIndex,
-          date: fromDate,
-          month: fromMonth,
-          year: fromYear,
-          isCompleted: false
-        })
-        this[MOVE_TASK_TO_COMPLETED](payload)
-        this[COMPLETE_TASK]({ taskId: movedTask.id, newIndex: e.newIndex })
-      } else if (e.to.dataset.working) {
+      if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
-      } else if (fromDateString === toDateString) {
+      } else if (e.to.dataset.completed) {
         if (e.oldIndex === e.newIndex) { return false }
         this[UPDATE_TASK_ORDER](payload)
       } else {
-        let [toYear, toMonth, toDate] = toDateString.split('-')
-        Object.assign(payload, { toYear, toMonth, toDate })
+        let [toYear, toMonth, toDate] = e.to.dataset.date.split('-')
+        payload = Object.assign(payload, { toYear, toMonth, toDate })
         this[MOVE_TASK_TO_ANOTHER](payload)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

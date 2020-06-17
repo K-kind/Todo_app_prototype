@@ -9,7 +9,6 @@
 
 <script>
 import ThisWeekColumn from '@/components/archives/ThisWeekColumn.vue'
-// import LastWeekColumn from '@/components/archives/LastWeekColumn.vue'
 // import WeeklyColumn from '@/components/archives/WeeklyColumn.vue'
 // import MonthlyColumn from '@/components/archives/MonthlyColumn.vue'
 import { SET_NEW_TASK_ID } from '@/store/mutation-types'
@@ -18,7 +17,6 @@ export default {
   name: 'Archives',
   components: {
     ThisWeekColumn,
-    // LastWeekColumn,
     // WeeklyColumn,
     // MonthlyColumn,
   },

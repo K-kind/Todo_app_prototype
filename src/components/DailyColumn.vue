@@ -34,18 +34,11 @@ export default {
       return dates
     }
   },
-  methods: {
-    dayFromBase(from_today) {
-      let date = new Date
-      date.setDate(date.getDate() + from_today)
-      return date
-    }
-  },
 }
 </script>
 
 <style scoped>
-.daily-column {
+/* .daily-column {
   vertical-align: top;
-}
+} */
 </style>
