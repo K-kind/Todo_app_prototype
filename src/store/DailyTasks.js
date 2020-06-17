@@ -135,6 +135,7 @@ export default {
     [MOVE_TASK_TO_ANOTHER](state, payload) {
       let oldIndex = payload.oldIndex
       let newIndex = payload.newIndex
+      let toCompleted = payload.toCompleted || false
 
       state.tasks = state.tasks.map(task => {
         if ( // 移動元
@@ -150,15 +151,15 @@ export default {
             task.date= Number.parseInt(payload.toDate)
             task.month = Number.parseInt(payload.toMonth)
             task.year = Number.parseInt(payload.toYear)
-            if (payload.fromCompleted) { task.isCompleted = false }
+            if (payload.fromCompleted) { task.isCompleted = toCompleted }
           }
         } else if ( // 移動先
           task.date == payload.toDate &&
           task.month == payload.toMonth &&
           task.year == payload.toYear &&
           task.order >= newIndex &&
-          !task.isCompleted
-        ) {
+          task.isCompleted === toCompleted
+          ) {
           task.order++
         }
 

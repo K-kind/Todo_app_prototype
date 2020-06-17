@@ -1,16 +1,16 @@
 <template>
   <div class="this-week-column">
-    <DailyTasks v-for="date in dates" :date="date" :key="date.toString()"></DailyTasks>
+    <CompletedTasks v-for="date in dates" :date="date" :key="date.toString()"></CompletedTasks>
   </div>
 </template>
 
 <script>
-import DailyTasks from '@/components/archives/DailyTasks.vue'
+import CompletedTasks from '@/components/CompletedTasks.vue'
 
 export default {
   name: 'ThisWeekColumn',
   components: {
-    DailyTasks
+    CompletedTasks
   },
   props: {
     startDate: Date

@@ -1,7 +1,7 @@
 <template>
   <div class="task-board">
-    <h2>本日の完了タスク</h2>
-    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true">
+    <h2>{{ dateString }}の完了タスク</h2>
+    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate">
       <li v-for="task of completedTasks(date)" :key="task.id">
         <p v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)">
           {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
@@ -49,7 +49,7 @@ import {
 } from '@/store/mutation-types'
 
 export default {
-  name: 'DailyTasks',
+  name: 'CompletedTasks',
   data() {
     return {
       newFormIsOpen: false,
@@ -65,19 +65,19 @@ export default {
   },
   computed: {
     ...mapGetters('daily', ['completedTasks', 'newTaskId']),
-    // dateString() {
-    //   let weekDay = ['日', '月', '火', '水', '木', '金', '土']
-    //   let month =  this.date.getMonth() + 1
-    //   let date =  this.date.getDate()
-    //   let day = weekDay[this.date.getDay()]
-    //   return `${month}/${date}(${day})`
-    // },
-    // separatedDate() {
-    //   let year = this.date.getFullYear()
-    //   let month = this.date.getMonth()
-    //   let date = this.date.getDate()
-    //   return `${year}-${month}-${date}`
-    // }
+    dateString() {
+      let weekDay = ['日', '月', '火', '水', '木', '金', '土']
+      let month =  this.date.getMonth() + 1
+      let date =  this.date.getDate()
+      let day = weekDay[this.date.getDay()]
+      return `${month}/${date}(${day})`
+    },
+    separatedDate() {
+      let year = this.date.getFullYear()
+      let month = this.date.getMonth()
+      let date = this.date.getDate()
+      return `${year}-${month}-${date}`
+    }
   },
   methods: {
     ...mapActions('daily', [ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, SET_CURRENT_TASK]),
@@ -128,22 +128,26 @@ export default {
       this.closeForm()
     },
     onDragEnd(e) {
+      let fromDateString = e.from.dataset.date
+      let toDateString = e.to.dataset.date
+      let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
       let payload = {
-        fromYear: this.date.getFullYear(),
-        fromMonth: this.date.getMonth(),
-        fromDate: this.date.getDate(),
+        fromYear,
+        fromMonth,
+        fromDate,
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
         fromCompleted: true
       }
       if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
-      } else if (e.to.dataset.completed) {
+      } else if (e.to.dataset.completed && fromDateString === toDateString ) {
         if (e.oldIndex === e.newIndex) { return false }
         this[UPDATE_TASK_ORDER](payload)
       } else {
+        let toCompleted = (e.to.dataset.completed ? true : false)
         let [toYear, toMonth, toDate] = e.to.dataset.date.split('-')
-        payload = Object.assign(payload, { toYear, toMonth, toDate })
+        payload = Object.assign(payload, { toYear, toMonth, toDate, toCompleted })
         this[MOVE_TASK_TO_ANOTHER](payload)
       }
     },
