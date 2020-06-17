@@ -5,8 +5,8 @@
       <span class="this-month"><h2 class="task-board__heading">{{ monthString }}</h2></span>
       <a v-if="monthsFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="monthFoward(true)"><i class="el-icon-caret-right"></i></a>
     </div>
-    <draggable tag="ul" group="MONTH" @end="onDragEnd">
-      <li v-for="task of monthlyTasks(startDate)" :key="task.id" class="task-board__li">
+    <draggable tag="ul" group="MONTH" @end="onDragEnd" draggable=".draggable">
+      <li v-for="task of monthlyTasks(startDate)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
         <div v-if="onUpdatedTaskId !== task.id" class="task-board__task">
           <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)"/>
           <p @click="openUpdateForm(task.id)" class="task-board__p">

@@ -5,8 +5,8 @@
       <span class="this-week"><h2 class="task-board__heading">{{ weekString }}</h2></span>
       <a v-if="daysFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="weekFoward(true)"><i class="el-icon-caret-right"></i></a>
     </div>
-    <draggable tag="ul" group="WEEK" @end="onDragEnd">
-      <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id"  class="task-board__li">
+    <draggable tag="ul" group="WEEK" @end="onDragEnd" draggable=".draggable">
+      <li v-for="task of weeklyTasks(weekRange.monday)" :key="task.id"  class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
         <div v-if="onUpdatedTaskId !== task.id" class="task-board__task">
           <input type="checkbox" v-model="task.isChecked" @change="checkTask(task)" />
           <p class="task-board__p" @click="openUpdateForm(task.id)">

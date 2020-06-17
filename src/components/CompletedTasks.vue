@@ -1,8 +1,8 @@
 <template>
   <div class="task-board">
     <h2 class="task-board__heading">{{ dateString }}の完了タスク</h2>
-    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate">
-      <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li">
+    <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate" draggable=".draggable">
+      <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
           <p class="task-board__p">
             {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)

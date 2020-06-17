@@ -7,8 +7,8 @@
       <span>経過時間: {{ elapsedTime }}</span>
       <button @click.prevent="complete()">完了</button>
     </div>
-    <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone">
-      <li v-if="currentTask" class="task-board__li">
+    <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone" draggable=".draggable">
+      <li v-if="currentTask" class="task-board__li" :class="{ draggable: !formIsOpen }">
         <div v-if="!formIsOpen" @click="openForm()" class="task-board__task">
           <p class="task-board__p">
             {{ currentTask.order }}: ID.{{ currentTask.id }}: {{ currentTask.content }} ({{ currentTask.date }}日)
