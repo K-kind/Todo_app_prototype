@@ -1,14 +1,15 @@
 <template>
   <form v-show="formIsOpen">
     <div>
-      <input
+      <el-input
         v-model="taskContentData"
         ref="contentForm"
         @blur="formBlur"
         type="text"
         placeholder="タスク内容"
-        class="content-input"
         autocomplete="off"
+        clearable
+        size="small"
       />
     </div>
     <div class="time-inputs">
@@ -65,13 +66,15 @@ export default {
     formBlur() {
       let self = this
       setTimeout(() => {
+        let activeElement = document.activeElement
         if (
           self.taskContentData === self.taskContent &&
           self.taskExpectedTimeData == self.taskExpectedTime &&
-          document.activeElement !== self.$refs.timeForm &&
-          document.activeElement !== self.$refs.contentForm &&
-          document.activeElement !== self.$refs.submitButton &&
-          document.activeElement !== self.$refs.deleteButton
+          activeElement !== self.$refs.timeForm &&
+          // activeElement !== self.$refs.contentForm &&
+          activeElement.className !== 'el-input__inner' &&
+          activeElement !== self.$refs.submitButton &&
+          activeElement !== self.$refs.deleteButton
           ) {
           self.$emit('close-form')
         }
@@ -122,10 +125,6 @@ export default {
 </script>
 
 <style scoped>
-.content-input {
-  width: 100%;
-  padding: 6px 8px;
-}
 .time-input {
   width: 55px;
   padding: 3px 0 3px 6px;

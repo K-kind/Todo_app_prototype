@@ -1,13 +1,14 @@
 <template>
   <form v-show="formIsOpen">
     <div class="content-block">
-      <input
+      <el-input
         v-model="taskContentData"
         ref="contentForm"
         @blur="formBlur"
         type="text"
-        class="content-input"
         autocomplete="off"
+        clearable
+        size="small"
       />
     </div>
     <div>
@@ -41,11 +42,11 @@ export default {
     formBlur() {
       let self = this
       setTimeout(() => {
+        let activeElement = document.activeElement
         if (
           self.taskContentData === self.taskContent &&
-          document.activeElement !== self.$refs.contentForm &&
-          document.activeElement !== self.$refs.submitButton &&
-          document.activeElement !== self.$refs.deleteButton
+          activeElement !== self.$refs.submitButton &&
+          activeElement !== self.$refs.deleteButton
           ) {
           self.$emit('close-form')
         }
@@ -81,10 +82,6 @@ export default {
 <style  scoped>
 form {
   padding: 6px 10px;
-}
-.content-input {
-  width: 100%;
-  padding: 6px 8px;
 }
 .content-block {
   margin-bottom: 8px;
