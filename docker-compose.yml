@@ -5,11 +5,8 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - sync-volume:/myapp
+      - .:/myapp:cached
       - node-data:/myapp/node_modules
-    command: yarn rebuild node-sass
 
 volumes:
   node-data:
-  sync-volume:
-    external: true
