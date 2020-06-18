@@ -1,0 +1,15 @@
+version: '3'
+services:
+  front:
+    image: punct_node:latest
+    ports:
+      - 8080:8080
+    volumes:
+      - sync-volume:/myapp
+      - node-data:/myapp/node_modules
+    command: yarn rebuild node-sass
+
+volumes:
+  node-data:
+  sync-volume:
+    external: true
