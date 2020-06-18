@@ -13,17 +13,36 @@
       />
     </div>
     <div class="time-inputs">
-      <label for="" class="time-label">{{ labelText }}</label>
-      <input
-        v-model="taskExpectedTimeData"
-        ref="timeForm"
-        @blur="formBlur"
-        type="number"
-        class="time-input"
-        :min="0"
-        :max="999"
-        :step="10"
-      />
+      <div v-if="isCompletedTask" class="time-form">
+        <label class="time-label">
+          経過(分)
+          <input
+            v-model="taskElapsedTimeData"
+            ref="elapsedForm"
+            @blur="formBlur"
+            type="number"
+            class="time-input"
+            :min="0"
+            :max="999"
+            :step="10"
+          />
+        </label>
+      </div>
+      <div class="time-form">
+        <label class="time-label">
+          予定(分)
+          <input
+            v-model="taskExpectedTimeData"
+            ref="expectedForm"
+            @blur="formBlur"
+            type="number"
+            class="time-input"
+            :min="0"
+            :max="999"
+            :step="10"
+          />
+        </label>
+      </div>
     </div>
     <div>
       <input @click.prevent="changeTask" type="submit" :value="buttonText" ref="submitButton">
@@ -44,6 +63,7 @@ export default {
     taskId: Number,
     taskContent: String,
     taskExpectedTime: Number,
+    taskElapsedTime: Number,
     isNewTask: Boolean,
     isCompletedTask: Boolean,
   },
@@ -51,15 +71,13 @@ export default {
     return {
       taskContentData: this.taskContent,
       taskExpectedTimeData: this.taskExpectedTime,
+      taskElapsedTimeData: this.taskElapsedTime
     }
   },
   computed: {
     buttonText() {
       return this.isNewTask ? '追加' : '変更'
     },
-    labelText() {
-      return this.isCompletedTask ? '経過(分):' : '予定(分):'
-    }
   },
   methods: {
     ...mapActions('daily', [DELETE_TASK_BY_ID]),
@@ -70,19 +88,21 @@ export default {
         if (
           self.taskContentData === self.taskContent &&
           self.taskExpectedTimeData == self.taskExpectedTime &&
-          activeElement !== self.$refs.timeForm &&
-          // activeElement !== self.$refs.contentForm &&
+          self.taskElapsedTimeData == self.taskElapsedTime &&
+          activeElement !== self.$refs.elapsedForm &&
+          activeElement !== self.$refs.expectedForm &&
           activeElement.className !== 'el-input__inner' &&
           activeElement !== self.$refs.submitButton &&
           activeElement !== self.$refs.deleteButton
           ) {
           self.$emit('close-form')
         }
-      })
+      }, 100)
     },
     closeForm() {
       this.taskContentData = ''
       this.taskExpectedTimeData = 0
+      this.taskElapsedTimeData = 0
       this.$emit('close-form')
     },
     focusForm() {
@@ -94,25 +114,29 @@ export default {
         return false
       }
 
-      let timeKey = (this.isCompletedTask ? 'elapsedTime' : 'expectedTime')
       this.taskExpectedTimeData *= (1000 * 60)
+      this.taskElapsedTimeData *= (1000 * 60)
 
       if (this.isNewTask) {
         this.$emit('add-task',
           {
             content: this.taskContentData,
-            [timeKey]: this.taskExpectedTimeData
+            expectedTime: this.taskExpectedTimeData,
+            elapsedTime: this.taskElapsedTimeData
           }
         )
         this.taskContentData = ''
         this.taskExpectedTimeData = 0
+        this.taskElapsedTimeData = 0
       } else {
-        this.$emit('update-task',
-          {
-            content: this.taskContentData,
-            [timeKey]: this.taskExpectedTimeData
-          }
-        )
+        let taskData = {
+          content: this.taskContentData,
+          expectedTime: this.taskExpectedTimeData
+        }
+        if (this.isCompletedTask) {
+          Object.assign(taskData, { elapsedTime: this.taskElapsedTimeData })
+        }
+        this.$emit('update-task', taskData)
       }
     },
     deleteTask() {
@@ -134,7 +158,11 @@ export default {
 }
 .time-inputs {
   margin: 5px 0;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+}
+.time-form {
+  margin-left: 10px;
 }
 form {
   padding: 6px 10px;

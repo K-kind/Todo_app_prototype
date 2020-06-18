@@ -80,10 +80,9 @@ export default {
     [UPDATE_TASK_CONTENT](state, payload) {
       let updatedTask = state.tasks.find(task => task.id === payload.id)
       updatedTask.content = payload.content
+      updatedTask.expectedTime = payload.expectedTime
       if ('elapsedTime' in payload) {
         updatedTask.elapsedTime = payload.elapsedTime
-      } else {
-        updatedTask.expectedTime = payload.expectedTime
       }
     },
     // 全部taskをfilterすると時間がかかるので要改善
