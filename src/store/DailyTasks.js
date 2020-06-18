@@ -49,6 +49,20 @@ export default {
         });
       }
     },
+    // dailyTasks(state) {
+    //   return date => {
+    //     return state.tasks.filter(task =>
+    //       task.year === date.getFullYear() &&
+    //       task.month === date.getMonth() &&
+    //       task.date === date.getDate() &&
+    //       !task.isCurrent && !task.isCompleted
+    //     ).sort((a, b) => {
+    //       if (a.order < b.order) return -1;
+    //       if (a.order > b.order) return 1;
+    //       return 0;
+    //     });
+    //   }
+    // },
     newTaskId(state) {
       return state.newTaskId
     },

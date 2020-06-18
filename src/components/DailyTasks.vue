@@ -1,13 +1,16 @@
 <template>
   <div class="task-board">
-    <h2 class="task-board__heading"><slot name="taskDate1"></slot>{{ dateString }}</h2>
+    <div class="task-board__header">
+      <h2 class="task-board__heading"><slot name="taskDate1"></slot>{{ dateString }}</h2>
+      <span v-if="totalTime">{{ totalTime }}</span>
+    </div>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate" draggable=".draggable">
       <li v-for="task of dailyTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
           <p class="task-board__p">
             <!-- {{ task.content }} -->
             {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
-            <span class="task-board__time">{{ taskTimes(task) }}分</span>
+            <span class="task-board__time">{{ toMinutes(task.expectedTime) }}分</span>
           </p>
         </div>
         <TaskForm
@@ -23,7 +26,7 @@
         ></TaskForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+タスクを追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)" class="task-board__add">+タスクを追加</a>
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
@@ -81,17 +84,27 @@ export default {
       let date = this.date.getDate()
       return `${year}-${month}-${date}`
     },
+    totalTime() {
+      let times = this.dailyTasks(this.date).map(task => task.expectedTime)
+      if (!times.length) return null;
+      let total = times.reduce((prev, current) => prev + current)
+      let m = this.toMinutes(total)
+      let h = Math.floor(m / 60)
+      m -= h * 60
+      let hString = h ? `${h}時間` : ''
+      return `${hString}${m}分`
+    }
   },
   methods: {
     ...mapActions('daily', [ADD_NEW_TASK, SET_NEW_TASK_ID, UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },
-    taskTimes(task) {
-      let elapsed = task.elapsedTime
-      let elapsedString = (elapsed ? `${this.toMinutes(elapsed)}/` : '')
-      return `${elapsedString}${this.toMinutes(task.expectedTime)}`
-    },
+    // taskTimes(task) {
+    //   let elapsed = task.elapsedTime
+    //   let elapsedString = (elapsed ? `${this.toMinutes(elapsed)}/` : '')
+    //   return `${elapsedString}${this.toMinutes(task.expectedTime)}`
+    // },
     closeForm() {
       this.newFormIsOpen = false
       let self = this

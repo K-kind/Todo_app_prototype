@@ -8,9 +8,14 @@
     text-align: right;
     align-self: center;
   }
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0 8px;
+  }
   &__heading {
-    margin: 0 0 8px;
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   &__li {
     border: solid #ddd 1px;
@@ -26,5 +31,10 @@
     line-height: 1.8;
     display: flex;
     justify-content: space-between;
+    overflow-wrap: anywhere;
+  }
+  &__add {
+    display: inline-block;
+    margin-top: 6px;
   }
 }

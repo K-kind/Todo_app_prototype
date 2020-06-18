@@ -1,6 +1,6 @@
 <template>
   <div class="task-board">
-    <div class="week-task-buttons">
+    <div class="task-board__header">
       <a v-if="daysFromToday !== 0 || isArchive" href="Javascript:void(0)" @click="weekFoward(false)"><i class="el-icon-caret-left"></i></a>
       <span class="this-week"><h2 class="task-board__heading">{{ weekString }}</h2></span>
       <a v-if="daysFromToday !== 0 || !isArchive" href="Javascript:void(0)" @click="weekFoward(true)"><i class="el-icon-caret-right"></i></a>
@@ -27,7 +27,7 @@
         ></LongTermForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+週目標を追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)" class="task-board__add">+週目標を追加</a>
     <LongTermForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
@@ -178,7 +178,8 @@ UPDATE_TASK_CONTENT, DELETE_TASK_BY_ID, COMPLETE_TASK, UPDATE_TASK_ORDER]),
 .task-board {
   background-color: rgb(242, 255, 240);
 }
-.week-task-buttons {
+.task-board__header {
+  display: block;
   text-align: center;
 }
 .this-week {

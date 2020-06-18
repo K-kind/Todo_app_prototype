@@ -1,7 +1,9 @@
 <template>
   <div class="today-column">
     <WorkingTask />
-    <CompletedTasks :date="today" />
+    <CompletedTasks :date="today">
+      <template v-slot:taskDate1>本日の完了タスク</template>
+    </CompletedTasks>
   </div>
 </template>
 

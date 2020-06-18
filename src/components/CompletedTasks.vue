@@ -1,6 +1,9 @@
 <template>
   <div class="task-board">
-    <h2 class="task-board__heading">{{ dateString }}の完了タスク</h2>
+    <div class="task-board__header">
+      <h2 class="task-board__heading"><slot name="taskDate1">{{ dateString }}</slot></h2>
+      <span v-if="totalTime">{{ totalTime }}</span>
+    </div>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate" draggable=".draggable">
       <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
@@ -23,7 +26,7 @@
         ></TaskForm>
       </li>
     </draggable>
-    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)">+完了済みを追加</a>
+    <a @click="openForm" v-show="!newFormIsOpen" href="Javascript:void(0)" class="task-board__add">+完了済みを追加</a>
     <TaskForm
       :formIsOpen="newFormIsOpen"
       taskContent=""
@@ -79,6 +82,16 @@ export default {
       let month = this.date.getMonth()
       let date = this.date.getDate()
       return `${year}-${month}-${date}`
+    },
+    totalTime() {
+      let times = this.completedTasks(this.date).map(task => task.elapsedTime)
+      if (!times.length) return null;
+      let total = times.reduce((prev, current) => prev + current)
+      let m = this.toMinutes(total)
+      let h = Math.floor(m / 60)
+      m -= h * 60
+      let hString = h ? `${h}時間` : ''
+      return `${hString}${m}分`
     }
   },
   methods: {
@@ -158,5 +171,7 @@ export default {
 </script>
 
 <style scoped>
-
+.task-board {
+  background-color: rgb(253, 242, 219);
+}
 </style>

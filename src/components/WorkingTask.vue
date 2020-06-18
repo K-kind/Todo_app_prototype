@@ -1,6 +1,8 @@
 <template>
   <div class="task-board">
-    <h2 class="task-board__heading">現在のタスク</h2>
+    <div class="task-board__header">
+      <h2 class="task-board__heading">現在のタスク</h2>
+    </div>
     <div v-if="currentTask">
       <a href="Javascript:void(0)" @click="start" v-if="!timerId"><i class="el-icon-video-play"></i></a>
       <a href="Javascript:void(0)" @click="stop" v-else><i class="el-icon-video-pause"></i></a>
@@ -176,7 +178,8 @@ export default {
   min-height: 140px;
   background-color: bisque;
 }
-h2 {
+/* .task-board__header {
+  display: block;
   text-align: center;
-}
+} */
 </style>
