@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import DailyTasks from '@/components/DailyTasks.vue'
+import DailyTasks from '@/components/tasks/DailyTasks.vue'
 
 export default {
   name: 'DailyColumn',

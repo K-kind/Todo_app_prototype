@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import WeeklyTasks from '@/components/WeeklyTasks.vue'
+import WeeklyTasks from '@/components/tasks/WeeklyTasks.vue'
 import { SET_NEW_TASK_ID } from '@/store/mutation-types'
 
 export default {

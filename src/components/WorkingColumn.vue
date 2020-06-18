@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import WorkingTask from '@/components/WorkingTask.vue'
-import CompletedTasks from '@/components/CompletedTasks.vue'
+import WorkingTask from '@/components/tasks/WorkingTask.vue'
+import CompletedTasks from '@/components/tasks/CompletedTasks.vue'
 
 export default {
-  name: 'TodayColumn',
+  name: 'WorkingColumn',
   components: {
     WorkingTask,
     CompletedTasks

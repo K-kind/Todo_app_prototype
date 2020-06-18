@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-// import { } from './mutation-types'
 import createPersistedState from 'vuex-persistedstate'
 import DailyTasks from './DailyTasks'
 import WeeklyTasks from './WeeklyTasks'

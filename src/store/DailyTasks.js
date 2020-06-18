@@ -49,20 +49,14 @@ export default {
         });
       }
     },
-    // dailyTasks(state) {
-    //   return date => {
-    //     return state.tasks.filter(task =>
-    //       task.year === date.getFullYear() &&
-    //       task.month === date.getMonth() &&
-    //       task.date === date.getDate() &&
-    //       !task.isCurrent && !task.isCompleted
-    //     ).sort((a, b) => {
-    //       if (a.order < b.order) return -1;
-    //       if (a.order > b.order) return 1;
-    //       return 0;
-    //     });
-    //   }
-    // },
+    remainingTasks(state) {
+      let today = (new Date) - (1000 * 60 * 60 * 24)
+      return state.tasks.filter(task => {
+        if (task.isCompleted || task.isCurrent) return false;
+        let taskDate = new Date(task.year, task.month, task.date)
+        if (taskDate < today) return task;
+      })
+    },
     newTaskId(state) {
       return state.newTaskId
     },

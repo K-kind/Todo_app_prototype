@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import CompletedTasks from '@/components/CompletedTasks.vue'
+import CompletedTasks from '@/components/tasks/CompletedTasks.vue'
 
 export default {
   name: 'ThisWeekColumn',
