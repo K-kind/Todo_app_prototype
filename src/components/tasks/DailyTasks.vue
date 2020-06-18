@@ -5,7 +5,7 @@
       <span v-if="totalTime">{{ totalTime }}</span>
     </div>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-date="separatedDate" draggable=".draggable">
-      <li v-for="task of dailyTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
+      <li v-for="task of dailyTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }" :data-task_id="task.id">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
           <p class="task-board__p">
             <!-- {{ task.content }} -->
@@ -70,7 +70,7 @@ export default {
     TaskForm
   },
   computed: {
-    ...mapGetters('daily', ['dailyTasks', 'newTaskId', 'getTaskByDate']),
+    ...mapGetters('daily', ['dailyTasks', 'newTaskId']),
     dateString() {
       let weekDay = ['日', '月', '火', '水', '木', '金', '土']
       let month =  this.date.getMonth() + 1
@@ -147,25 +147,20 @@ export default {
       let fromDateString = e.from.dataset.date
       let toDateString = e.to.dataset.date
       let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
+      let taskId = Number.parseInt(e.clone.dataset.task_id)
       let payload = {
         fromYear,
         fromMonth,
         fromDate,
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
-        fromCompleted: false
+        fromCompleted: false,
+        taskId
       }
 
       if (e.to.dataset.completed) {
-        let movedTask = this.getTaskByDate({
-          order: e.oldIndex,
-          date: fromDate,
-          month: fromMonth,
-          year: fromYear,
-          isCompleted: false
-        })
         this[MOVE_TASK_TO_COMPLETED](payload)
-        this[COMPLETE_TASK]({ taskId: movedTask.id, newIndex: e.newIndex })
+        this[COMPLETE_TASK]({ taskId, newIndex: e.newIndex })
       } else if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
       } else if (fromDateString === toDateString) {

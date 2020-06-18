@@ -5,7 +5,7 @@
       <span v-if="totalTime">{{ totalTime }}</span>
     </div>
     <draggable tag="ul" group="TASKS" @end="onDragEnd" :data-completed="true" :data-date="separatedDate" draggable=".draggable">
-      <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
+      <li v-for="task of completedTasks(date)" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }" :data-task_id="task.id">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
           <p class="task-board__p">
             {{ task.order }}: ID.{{ task.id }}: {{ task.content }} ({{ task.date }}日)
@@ -146,13 +146,15 @@ export default {
       let fromDateString = e.from.dataset.date
       let toDateString = e.to.dataset.date
       let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
+      let taskId = Number.parseInt(e.clone.dataset.task_id)
       let payload = {
         fromYear,
         fromMonth,
         fromDate,
         oldIndex: e.oldIndex,
         newIndex: e.newIndex,
-        fromCompleted: true
+        fromCompleted: true,
+        taskId
       }
       if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)

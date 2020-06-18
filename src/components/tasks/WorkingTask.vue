@@ -9,7 +9,7 @@
       <span>経過時間: {{ elapsedTime }}</span>
       <button @click.prevent="complete()">完了</button>
     </div>
-    <draggable tag="ul" :group="draggableGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone" draggable=".draggable">
+    <draggable tag="ul" :group="dragGroup" @end="onDragEnd" :data-working="true" @add="onAdd" @clone="onClone" draggable=".draggable">
       <li v-if="currentTask" class="task-board__li" :class="{ draggable: !formIsOpen }">
         <div v-if="!formIsOpen" @click="openForm()" class="task-board__task">
           <p class="task-board__p">
@@ -53,7 +53,7 @@ export default {
       formIsOpen: false,
       timerId: null,
       elapsedTime: null,
-      draggableGroup: 'TASKS'
+      dragGroup: 'TASKS'
     }
   },
   components: {
@@ -157,8 +157,7 @@ export default {
       this.disableDrag(false)
     },
     disableDrag(boolean) {
-      let groupName = (boolean ? '' : 'TASKS')
-      this.draggableGroup = groupName
+      this.dragGroup = (boolean ? '' : 'TASKS')
     }
   },
   mounted() {

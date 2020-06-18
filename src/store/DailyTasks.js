@@ -63,17 +63,6 @@ export default {
     currentTask(state) {
       return state.tasks.find(task => task.id === state.currentTaskId)
     },
-    getTaskByDate(state) {
-      return ({ order, date, month, year, isCompleted }) => {
-        return state.tasks.find(task =>
-          task.order === order &&
-          task.date == date &&
-          task.month == month &&
-          task.year == year &&
-          task.isCompleted === isCompleted
-        )
-      }
-    }
   },
   mutations: {
     [ADD_NEW_TASK](state, payload) {
@@ -146,21 +135,20 @@ export default {
       let toCompleted = payload.toCompleted || false
 
       state.tasks = state.tasks.map(task => {
-        if ( // 移動元
+        if (task.id === payload.taskId) {
+          task.order = newIndex
+          task.date= Number.parseInt(payload.toDate)
+          task.month = Number.parseInt(payload.toMonth)
+          task.year = Number.parseInt(payload.toYear)
+          if (payload.fromCompleted) { task.isCompleted = toCompleted }
+        } else if ( // 移動元
           task.date == payload.fromDate &&
           task.month == payload.fromMonth &&
           task.year == payload.fromYear &&
+          task.order > oldIndex &&
           task.isCompleted === payload.fromCompleted
         ) {
-          if (task.order > oldIndex) {
-            task.order--
-          } else if (task.order === oldIndex) { // 自分自身
-            task.order = newIndex
-            task.date= Number.parseInt(payload.toDate)
-            task.month = Number.parseInt(payload.toMonth)
-            task.year = Number.parseInt(payload.toYear)
-            if (payload.fromCompleted) { task.isCompleted = toCompleted }
-          }
+          task.order--
         } else if ( // 移動先
           task.date == payload.toDate &&
           task.month == payload.toMonth &&
@@ -170,7 +158,6 @@ export default {
           ) {
           task.order++
         }
-
         return task
       })
     },
@@ -189,17 +176,9 @@ export default {
       })
     },
     [SET_CURRENT_TASK](state, {
-      fromYear, fromMonth, fromDate, oldIndex, fromCompleted
-    }) {
-      let currentTask = state.tasks.find(task =>
-        task.date == fromDate &&
-        task.month == fromMonth &&
-        task.year == fromYear &&
-        task.order === oldIndex &&
-        task.isCompleted === fromCompleted
-      )
-      state.currentTaskId = currentTask.id
-
+      fromYear, fromMonth, fromDate, oldIndex, fromCompleted, taskId
+    } = {}) {
+      state.currentTaskId = taskId
       state.tasks = state.tasks.map(task => {
         if (
           task.date == fromDate &&
@@ -209,7 +188,7 @@ export default {
           task.isCompleted === fromCompleted
         ) {
           task.order--
-        } else if (task.id === currentTask.id) {
+        } else if (task.id === taskId) {
           task.isCurrent = true
           task.isCompleted = false
           task.year = null
@@ -276,7 +255,7 @@ export default {
       completedTask.date = now.getDate()
       completedTask.isCompleted = true
 
-      if (newIndex) {
+      if (newIndex >= 0) {
         state.tasks = state.tasks.map(task => {
           if (
             task.date === completedTask.date && // または今日

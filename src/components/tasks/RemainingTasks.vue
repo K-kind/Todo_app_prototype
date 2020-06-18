@@ -4,8 +4,8 @@
       <h2 class="task-board__heading">前日の未消化タスク</h2>
       <span v-if="totalTime">{{ totalTime }}</span>
     </div>
-    <draggable tag="ul" group="TASKS" @end="onDragEnd" draggable=".draggable">
-      <li v-for="task of remainingTasks" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }">
+    <draggable tag="ul" :group="dragGroup" @end="onDragEnd" @clone="onClone" draggable=".draggable" data-remaining="true">
+      <li v-for="task of remainingTasks" :key="task.id" class="task-board__li" :class="{ draggable: !onUpdatedTaskId }" :data-task_id="task.id">
         <div v-if="onUpdatedTaskId !== task.id" @click="openUpdateForm(task.id)" class="task-board__task">
           <p class="task-board__p">
             <!-- {{ task.content }} -->
@@ -35,9 +35,7 @@ import { mapActions } from 'vuex'
 import TaskForm from '@/components/TaskForm.vue'
 import {
   UPDATE_TASK_CONTENT,
-  UPDATE_TASK_ORDER,
   MOVE_TASK_TO_ANOTHER,
-  MOVE_TASK_TO_COMPLETED,
   SET_CURRENT_TASK,
   COMPLETE_TASK
 } from '@/store/mutation-types'
@@ -49,7 +47,8 @@ export default {
   },
   data() {
     return {
-      onUpdatedTaskId: ''
+      onUpdatedTaskId: '',
+      dragGroup: 'REMAINING'
     }
   },
   components: {
@@ -69,22 +68,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions('daily', [UPDATE_TASK_CONTENT, UPDATE_TASK_ORDER, MOVE_TASK_TO_ANOTHER, MOVE_TASK_TO_COMPLETED, SET_CURRENT_TASK, COMPLETE_TASK]),
+    ...mapActions('daily', [UPDATE_TASK_CONTENT, MOVE_TASK_TO_ANOTHER, SET_CURRENT_TASK, COMPLETE_TASK]),
     toMinutes(time) {
       return Math.ceil(time / (1000 * 60))
     },
-    // taskTimes(task) {
-    //   let elapsed = task.elapsedTime
-    //   let elapsedString = (elapsed ? `${this.toMinutes(elapsed)}/` : '')
-    //   return `${elapsedString}${this.toMinutes(task.expectedTime)}`
-    // },
     closeForm() {
       let self = this
       setTimeout(() => self.onUpdatedTaskId = '')
-    },
-    openForm() {
-      let self = this
-      setTimeout(() => self.$refs.newForm.focusForm())
     },
     openUpdateForm(taskId) {
       this.onUpdatedTaskId = taskId
@@ -97,38 +87,31 @@ export default {
       this.closeForm()
     },
     onDragEnd(e) {
-      let fromDateString = e.from.dataset.date
-      let toDateString = e.to.dataset.date
-      let [fromYear, fromMonth, fromDate] = fromDateString.split('-')
+      this.disableDrag(true)
+      if (e.to.dataset.remaining) { return false }
+
+      let taskId = Number.parseInt(e.clone.dataset.task_id)
       let payload = {
-        fromYear,
-        fromMonth,
-        fromDate,
-        oldIndex: e.oldIndex,
         newIndex: e.newIndex,
-        fromCompleted: false
+        fromCompleted: false,
+        taskId
       }
 
       if (e.to.dataset.completed) {
-        let movedTask = this.getTaskByDate({
-          order: e.oldIndex,
-          date: fromDate,
-          month: fromMonth,
-          year: fromYear,
-          isCompleted: false
-        })
-        this[MOVE_TASK_TO_COMPLETED](payload)
-        this[COMPLETE_TASK]({ taskId: movedTask.id, newIndex: e.newIndex })
+        this[COMPLETE_TASK]({ taskId, newIndex: e.newIndex })
       } else if (e.to.dataset.working) {
         this[SET_CURRENT_TASK](payload)
-      } else if (fromDateString === toDateString) {
-        if (e.oldIndex === e.newIndex) { return false }
-        this[UPDATE_TASK_ORDER](payload)
       } else {
-        let [toYear, toMonth, toDate] = toDateString.split('-')
+        let [toYear, toMonth, toDate] = e.to.dataset.date.split('-')
         Object.assign(payload, { toYear, toMonth, toDate })
         this[MOVE_TASK_TO_ANOTHER](payload)
       }
+    },
+    onClone() {
+      this.disableDrag(false)
+    },
+    disableDrag(boolean) {
+      this.dragGroup = (boolean ? 'REMAINING' : 'TASKS')
     }
   }
 }
