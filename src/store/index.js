@@ -1,9 +1,10 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import createPersistedState from 'vuex-persistedstate'
-import DailyTasks from './DailyTasks'
-import WeeklyTasks from './WeeklyTasks'
-import MonthlyTasks from './MonthlyTasks'
+import DailyTasks from './modules/DailyTasks'
+import WeeklyTasks from './modules/WeeklyTasks'
+import MonthlyTasks from './modules/MonthlyTasks'
+import Auth from './modules/Auth'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
     daily: DailyTasks,
     weekly: WeeklyTasks,
     monthly: MonthlyTasks,
+    auth: Auth
   },
   plugins: [createPersistedState({
     key: 'todo',

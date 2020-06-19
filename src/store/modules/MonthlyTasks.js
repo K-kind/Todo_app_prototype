@@ -5,7 +5,7 @@ import {
   DELETE_TASK_BY_ID,
   UPDATE_TASK_ORDER,
   COMPLETE_TASK
-} from './mutation-types'
+} from '../mutation-types'
 
 export default {
   namespaced: true,

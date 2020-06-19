@@ -11,7 +11,7 @@ import {
   START_TASK,
   STOP_TASK,
   COMPLETE_TASK
-} from './mutation-types'
+} from '../mutation-types'
 
 export default {
   namespaced: true,
